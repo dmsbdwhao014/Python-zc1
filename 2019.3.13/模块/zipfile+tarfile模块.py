@@ -12,15 +12,18 @@ import zipfile,tarfile,shutil,os
 #     z1.extractall()
 #     z1.close()
 #
+if not os.path.exists("testzip.tar"):
+    shutil.copyfile("ini1","ini3")
+    shutil.copyfile("ini1","ini4")
+    t = tarfile.open("testtar.tar","w")
+    t.add("ini3",arcname="ini3")
+    t.add("ini4",arcname="ini4")
+    t.close()
 
-shutil.copyfile("ini1","ini3")
-shutil.copyfile("ini1","ini4")
-t = tarfile.TarFile("testtar.tar","w")
-t.addfile("ini3")
-t.addfile("ini4")
-t.close()
-
-
+if  os.path.exists("testzip.tar"):
+    t = tarfile.open("testtar.tar","r")
+    t.extractall()
+    t.close()
 
 
 
