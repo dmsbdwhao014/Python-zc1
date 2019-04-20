@@ -10,6 +10,7 @@ class Anna:
         pass
 
     def bella(self):
+        # 静态字段只能在同一个类中访问
         print(Anna.__lastname)
 
 

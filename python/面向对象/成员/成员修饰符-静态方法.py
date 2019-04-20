@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-
+# 静态方法可以继承，但是不能在派生类中访问基类的静态方法
 
 class Anna:
     firstname = 'zhou'
