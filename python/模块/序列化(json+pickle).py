@@ -32,12 +32,12 @@
 # print(ret)
 
 
-# import pickle
+import pickle
 import json
 
-l1 = '1,2,3,4,5,6'
-r= json.dumps(l1)
-print(r)
+# l1 = '1,2,3,4,5,6'
+# r= json.dumps(l1)
+# print(r)
 
 # r = pickle.dumps(l1)
 # print(r)
@@ -46,4 +46,5 @@ print(r)
 # print(r1)
 # pickle.dump(l1,open('db.txt','wb'))
 # r = pickle.load(open('db.txt','rb'))
-# print(r)
+for r in pickle.load(open('db.txt','rb')) .split(','):
+    print(r)
