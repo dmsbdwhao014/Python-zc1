@@ -4,28 +4,36 @@ import pickle
 import time
 
 
-class Constarint:
-    def Check(self, name):
-        result = pickle.load(open('db', 'rb'))
-        if name in result:
-            return False
-        else:
-            return True
-
-
 class Teacher:
-    def Add_Teacher(self, name, age, sale, created_time, course, role):
-        self.Name, self.Age, self.Sale, self.Create_time, self.Course, self.Role = name, age, sale, created_time, course, role
-        # r = Constarint.Check(name)
-        msg = "{Name},{Age},{Sale},{Create_Time},{Course},{Role}\n".format(Name=self.Name, Age=self.Age,
-                                                                         Sale=self.Sale,
-                                                                         Create_Time=self.Create_time,
-                                                                         Course=self.Course, Role=self.Role)
-        pickle.dump(msg, open('db', 'wb+'))
+    def __init__(self, name, age, admin):
+        self.Name = name
+        self.Age = age
+        self.__assets = 0
+        self.Create_Time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+        self.Create_Admin = admin
+
+    def gain(self, cost):
+        self.__assets += cost
+
+    def decrease(self, cost):
+        self.__assets -= cost
 
 
+class Admin:
+    def __init__(self):
+        self.Username = None
+        self.Password = None
 
-r = Teacher()
-r.Add_Teacher('chen1g1',1626,20000,time.strftime('%Y-%m-%d %H:%M:%S',time.localtime()),'数学','老师')
-result = pickle.load(open('db', 'rb'))
-print(result)
+    def login(self, user, passwd):
+
+        if self.Username == user and self.Password == passwd:
+            return True
+        else:
+            return False
+
+    def register(self, user, passwd):
+        self.Username = user
+        self.Password = passwd
+
+        Path = 'db/admin/{db}'.format(db='db')
+        pickle.dump(self, open(Path, 'xb'))
