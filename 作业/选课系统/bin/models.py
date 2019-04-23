@@ -2,7 +2,8 @@
 # -*- coding:utf-8 -*-
 import pickle
 import time
-
+import os
+import getpass
 
 class Teacher:
     def __init__(self, name, age, admin):
@@ -35,5 +36,32 @@ class Admin:
         self.Username = user
         self.Password = passwd
 
-        Path = 'db/admin/{db}'.format(db='db')
-        pickle.dump(self, open(Path, 'xb'))
+        pickle.dump(self, open(self.Username, 'xb'))
+
+
+
+def main():
+    inp = input("请输入选项:\n1.管理员登陆\n2.管理员注册\n>>>>>> ")
+    if inp == '1':
+        username = input("请输入用户:").strip()
+        passwd = input("请输入密码:")
+        if os.path.exists(username):
+            Admin_user = pickle.load(open(username, 'rb'))
+            if Admin_user.login(username,passwd):
+                print("登陆成功")
+            else:
+                print("用户名或者密码错")
+        else:
+            print("用户不存在")
+    elif inp == '2':
+        username = input("请输入用户:").strip()
+        passwd = input("请输入密码:")
+        if os.path.exists(username):
+            print("用户已经存在")
+        else:
+            Admin_user = Admin()
+            Admin_user.register(username,passwd)
+
+
+if __name__ == '__main__':
+    main()
