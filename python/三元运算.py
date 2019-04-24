@@ -19,3 +19,4 @@
 # print(f1(100))
 # print(f2(100))
 
+import tabnanny
