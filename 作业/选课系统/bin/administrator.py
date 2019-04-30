@@ -3,6 +3,7 @@
 import os
 import pickle
 
+from conf import settings
 from lib import modules
 
 
@@ -15,16 +16,16 @@ def Create_tearch(admin):
         age = input("请输入老师年龄:")
         obj = modules.Teacher(name, age, admin)
         tearch_list.append(obj)
-    if os.path.exists('db/tearch/tearch_list'):
-        exists_list = pickle.load(open('db/tearch/tearch_list', 'rb'))
+    if os.path.exists(settings.tearch_db_dir):
+        exists_list = pickle.load(open(settings.tearch_db_dir, 'rb'))
         tearch_list.extend(exists_list)
-    pickle.dump(tearch_list, open("db/tearch/tearch_list", 'xb'))
+    pickle.dump(tearch_list, open(settings.tearch_db_dir, 'xb'))
     modules.runcode(5)
 
 
 def Create_course(admin):
     course_list = []
-    tearch_list = pickle.load(open('db/tearch/tearch_list', 'rb'))
+    tearch_list = pickle.load(open(settings.tearch_db_dir, 'rb'))
     for num, item in enumerate(tearch_list, 1):
         print(num, item.Name, item.Age, item.Create_Admin.Username, item.Create_Time)
     while True:
@@ -35,16 +36,16 @@ def Create_course(admin):
         tearch = input("请选择老师:")
         course_obj = modules.Course(name, cost, tearch_list[int(tearch) - 1], admin)
         course_list.append(course_obj)
-        if os.path.exists('db/course/course_list'):
-            exists_list = pickle.load(open('db/course/course_list', 'rb'))
+        if os.path.exists(settings.course_db_dir):
+            exists_list = pickle.load(open(settings.course_db_dir, 'rb'))
             course_list.extend(exists_list)
-        pickle.dump(course_list, open('db/course/course_list', 'wb'))
+        pickle.dump(course_list, open(settings.course_db_dir, 'wb'))
         modules.runcode(6)
 
 
 def Login(username, passwd):
-    if os.path.exists('db/admin/' + username):
-        Admin_user = pickle.load(open('db/admin/' + username, 'rb'))
+    if os.path.exists(settings.admin_db_dir + username):
+        Admin_user = pickle.load(open(settings.admin_db_dir + username, 'rb'))
         if Admin_user.login(username, passwd):
             modules.runcode(0)
             while True:
@@ -60,7 +61,7 @@ def Login(username, passwd):
 
 
 def register(username, passwd):
-    if os.path.exists('db/admin/' + username):
+    if os.path.exists(settings.admin_db_dir + username):
         return 2
     else:
         Admin_user = modules.Admin()

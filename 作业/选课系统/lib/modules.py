@@ -5,6 +5,8 @@ import os
 import pickle
 import time
 
+from conf import settings
+
 
 class Teacher:
     def __init__(self, name, age, admin):
@@ -31,6 +33,7 @@ class Course:
 
 
 class Admin:
+
     def __init__(self):
         self.Username = None
         self.Password = None
@@ -45,10 +48,10 @@ class Admin:
     def register(self, user, passwd):
         self.Username = user
         self.Password = passwd
-        if os.path.exists('db/admin/' + self.Username):
+        if os.path.exists(settings.admin_db_dir + self.Username):
             return 2
         else:
-            pickle.dump(self, open('db/admin/' + self.Username, 'xb'))
+            pickle.dump(self, open(settings.admin_db_dir + self.Username, 'xb'))
             return 4
 
 
