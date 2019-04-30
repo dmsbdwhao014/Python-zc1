@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+
 import os
 import pickle
+import sys
 
+sys.path.insert(1, os.path.dirname((os.path.dirname(__file__))))
 from conf import settings
 from lib import modules
+from lib.modules import Teacher
+from lib.modules import Admin
 
 
 def Create_tearch(admin):
@@ -14,12 +19,12 @@ def Create_tearch(admin):
         if name == 'q':
             break
         age = input("请输入老师年龄:")
-        obj = modules.Teacher(name, age, admin)
+        obj = Teacher(name, age, admin)
         tearch_list.append(obj)
     if os.path.exists(settings.tearch_db_dir):
         exists_list = pickle.load(open(settings.tearch_db_dir, 'rb'))
         tearch_list.extend(exists_list)
-    pickle.dump(tearch_list, open(settings.tearch_db_dir, 'xb'))
+    pickle.dump(tearch_list, open(settings.tearch_db_dir, 'wb'))
     modules.runcode(5)
 
 
@@ -64,7 +69,7 @@ def register(username, passwd):
     if os.path.exists(settings.admin_db_dir + username):
         return 2
     else:
-        Admin_user = modules.Admin()
+        Admin_user = Admin()
         r = Admin_user.register(username, passwd)
         modules.runcode(r)
 

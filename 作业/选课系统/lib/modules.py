@@ -3,8 +3,10 @@
 
 import os
 import pickle
+import sys
 import time
 
+sys.path.append(os.path.dirname((os.path.dirname(__file__))))
 from conf import settings
 
 
@@ -48,11 +50,44 @@ class Admin:
     def register(self, user, passwd):
         self.Username = user
         self.Password = passwd
-        if os.path.exists(settings.admin_db_dir + self.Username):
+        path = os.path.join(settings.admin_db_dir, self.Username)
+        if os.path.exists(path):
             return 2
         else:
-            pickle.dump(self, open(settings.admin_db_dir + self.Username, 'xb'))
+            pickle.dump(self, open(path, 'xb'))
             return 4
+
+
+class Student:
+    def __init__(self):
+        self.username = None
+        self.password = None
+        self.course_list = []
+        self.study_dict = []
+
+    def select_course(self, course_obj):
+        self.course_list.append(course_obj)
+
+    def study(self, course_obj):
+        class_result = course_obj.have_lesson()
+
+        if course_obj in self.study_dict.keys():
+            self.study_dict[course_obj].append(class_result)
+        else:
+            self.study_dict[course_obj] = [class_result, ]
+
+    def login(self, user, passswd):
+
+        if self.username == user and self.password == passswd:
+            return True
+        else:
+            return False
+
+    def register(self, user, passwd):
+        self.username = user
+        self.password = passwd
+        path = os.path.join(settings.student_db_dir, self.username)
+        pickle.dump(self, open(path, 'xb'))
 
 
 def runcode(code):
