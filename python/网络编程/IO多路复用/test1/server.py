@@ -11,15 +11,15 @@ sk1 = socket.socket()
 sk1.bind(IP_LIST1)
 sk1.listen()
 
-sk2 = socket.socket()
-sk2.bind(IP_LIST2)
-sk2.listen()
+# sk2 = socket.socket()
+# sk2.bind(IP_LIST2)
+# sk2.listen()
+#
+# sk3 = socket.socket()
+# sk3.bind(IP_LIST3)
+# sk3.listen()
 
-sk3 = socket.socket()
-sk3.bind(IP_LIST3)
-sk3.listen()
-
-inputs = [sk1, sk2, sk3, ]
+inputs = [sk1, ]
 
 while True:
     # select.select 自动监控inputs元组的文件描述符
