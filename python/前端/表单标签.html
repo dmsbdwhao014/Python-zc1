@@ -6,9 +6,20 @@
 </head>
 <body>
 
-<form action="">
-    用户名: <input type="text" name="username">
-    密码: <input type="password" name="password">
+<!--action 提交到指定位置-->
+<!--<form action="https://www.sogou.com/web" method="post">-->
+<form method="post" enctype="multipart/form-data">
+    <p>username <input type="text" name="query" title="请输入用户"></p>
+    <p>password <input type="password" name="password"></p>
+    <p>男 <input type="radio" name="sex" value="1"></p>
+    <p>女 <input type="radio" name="sex" value="2"></p>
+
+    <p>篮球 <input type="checkbox" name="bobby" value="1"></p>
+    <p>足球 <input type="checkbox" name="bobby" value="2"></p>
+    <p>乒乓球 <input type="checkbox" name="bobby" value="3"></p>
+    <p><input type="button" value="提交"></p>
+    <p><input type="file" value="filename"></p>
+    <p><input type="submit" value="commit"></p>
 </form>
 </body>
 </html>
