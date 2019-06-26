@@ -9,30 +9,38 @@
 <!--action 提交到指定位置-->
 <!--<form action="https://www.sogou.com/web" method="post">-->
 <form method="post" enctype="multipart/form-data">
-    <!--text-->
+    <!--label与input配合使用-->
+    <label for="username">用户名</label>
+    <input type="text" id="username" size="20">
+    <!--text  value 默认值-->
     <p>username <input type="text" name="query" value="zhoucheng"></p>
-    <!--password-->
+    <!--password value 默认值-->
     <p>password <input type="password" name="password" value="123"></p>
-    <!--radio-->
+    <!--radio 单选框-->
     <p>男 <input type="radio" name="sex" value="1"></p>
     <p>女 <input type="radio" name="sex" value="2"></p>
-    <!--checkbox-->
+    <!--checkbox 多选框-->
     <p>篮球 <input type="checkbox" name="bobby" value="1"></p>
     <p>足球 <input type="checkbox" name="bobby" value="2"></p>
     <p>乒乓球 <input type="checkbox" name="bobby" value="3"></p>
-    <!--select-->
+    <!--select 下拉框-->
     <select name="language">
-        <option value=""></option>
-        <option value="java">java</option>
-        <option value="python">python</option>
-        <option value="c">c</option>
-        <option value="c##">c##</option>
+        <optgroup label="高级语言">
+            <option value="java">java</option>
+            <option value="python">python</option>
+        </optgroup>
+        <optgroup label="机器语言">
+            <option value="c">c</option>
+            <option value="c##">c##</option>
+        </optgroup>
     </select>
-    <!--button-->
+    <!--button 按钮,事件触发-->
     <p><input type="button" value="提交"></p>
-    <!--file-->
-    <p><input type="file" value="filename"></p>
-    <!--submit-->
+    <!--file 上传文件-->
+    <p><input type="file" name="filename"></p>
+    <!--textarea 备注-->
+    <textarea name="note"></textarea>
+    <!--submit 提交-->
     <p><input type="submit" value="commit"></p>
 </form>
 </body>
