@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    p[isTrue^="no"] {
+        background-color: #ff0030;
+        color: chartreuse;
+        font-size: 30px;
+    }
+
+    p:before {
+        content: "before";
+        color: red;
+    }
+
+    p:after {
+        content: "after";
+        font-size: 40px;
+    }
+
+    a:link {
+        color: red;
+    }
+
+    a:visited {
+        color: blue;
+    }
+
+    a:hover {
+        color: green;
+    }
+
+    a:active {
+        color: yellow;
+    }
+</style>
+<body>
+
+<div isTrue="yes">
+    cheng
+    <p> test2</p>
+</div>
+<p isTrue="no yes">test3</p>
+<a isTrue="no yes">test4</a>
+<a isTrue="no-yes">test5</a>
+
+<p> This is test6</p>
+<a href="www.baidu.com"> This is test7 </a>
+
+
+</body>
+</html>
