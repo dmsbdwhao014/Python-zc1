@@ -1,7 +1,7 @@
 import cx_Oracle, os
 
 username = 'sys'
-syspwd = 'gzNsn789'
+syspwd = 'Oracle'
 dsn = cx_Oracle.makedsn("192.168.10.10", 1521, service_name="zctest")
 os.environ['NLS_LANG'] = 'AMERICAN_AMERICA.AL32UTF8'
 enabled_ddl_parallel="alter session force parallel ddl parallel 8"
@@ -11,7 +11,6 @@ class common:
     def __init__(self):
         self.PDB_NAME = None
         self.USERNAME = None
-
     def Pdbexists(self, pdb_name):
         self.PDB_NAME = pdb_name
         with  cx_Oracle.connect(username, syspwd, dsn, mode=cx_Oracle.SYSDBA, encoding="UTF-8") as db_conn:
@@ -110,9 +109,7 @@ class tablespace:
     def DropTBS(self,pdb_name,user_name):
         self.PDB_NAME = pdb_name
         self.USERNAME = user_name
-        ifPDBexists = common.Pdbexists(self.PDB_NAME)
-
-
+        # ifPDBexists = common.Pdbexists(self.PDB_NAME)
 
 
 class PDB:
@@ -197,5 +194,13 @@ class USER:
             if ifUserexists:
                 try:
                     with  cx_Oracle.connect(username, syspwd, dsn, mode=cx_Oracle.SYSDBA, encoding="UTF-8") as db_conn:
+                        tbs = "tbs_{user}".format(user=self.USERNAME)
+                        pwd="ChangeMe"
                         db_cursor = db_conn.cursor()
                         db_cursor.execute("alter session set container=;pdb",pdb=self.PDB_NAME)
+                        db_cursor.execute("create user :pdb default tablespace :tablespace identified by :passwd  PROFILE default1", pdb=self.PDB_NAME,tablespace=tbs,passwd=pwd)
+                        db_cursor.execute("grant dba to :pdb", pdb=self.PDB_NAME)
+                        db_cursor.colse()
+                        db_conn.colse()
+                except Exception as e:
+                    return e
