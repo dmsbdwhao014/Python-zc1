@@ -4,13 +4,16 @@ username = 'sys'
 syspwd = 'Oracle'
 dsn = cx_Oracle.makedsn("192.168.10.10", 1521, service_name="zctest")
 os.environ['NLS_LANG'] = 'AMERICAN_AMERICA.AL32UTF8'
-enabled_ddl_parallel="alter session force parallel ddl parallel 8"
-disabled_ddl_parallel="alter session disable parallel ddl"
+enabled_ddl_parallel = "alter session force parallel ddl parallel 8"
+disabled_ddl_parallel = "alter session disable parallel ddl"
+realfilepath="/u01/app/oracle/oradata/zctest"
+
 
 class common:
     def __init__(self):
         self.PDB_NAME = None
         self.USERNAME = None
+
     def Pdbexists(self, pdb_name):
         self.PDB_NAME = pdb_name
         with  cx_Oracle.connect(username, syspwd, dsn, mode=cx_Oracle.SYSDBA, encoding="UTF-8") as db_conn:
@@ -18,7 +21,7 @@ class common:
             db_cursor.execute("select count(1) from dba_pdbs where pdb_name= :pdb", pdb=self.PDB_NAME)
             db_records = db_cursor.fetchall()
             db_conn.commit()
-            return db_records
+            return db_records[0][0]
 
     def Userexists(self, pdb_name, user_name):
         self.PDB_NAME = pdb_name
@@ -30,7 +33,7 @@ class common:
                 pdb=self.PDB_NAME, user=self.USERNAME)
             db_records = db_cursor.fetchall()
             db_conn.commit()
-            return db_records
+            return db_records[0][0]
 
     def Profileexists(self, pdb_name):
         self.PDB_NAME = pdb_name
@@ -41,7 +44,7 @@ class common:
                 pdb=self.PDB_NAME)
             db_records = db_cursor.fetchall()
             db_conn.commit()
-            return db_records
+            return db_records[0][0]
 
     def Tbsexists(self, pdb_name, user_name):
         self.PDB_NAME = pdb_name
@@ -70,43 +73,43 @@ class common:
     def ListPDB(self):
         with  cx_Oracle.connect(username, syspwd, dsn, mode=cx_Oracle.SYSDBA, encoding="UTF-8") as db_conn:
             db_cursor = db_conn.cursor()
-            db_cursor.execute("show pdbs")
+            db_cursor.execute("select CON_ID,NAME,OPEN_MODE,RESTRICTED,OPEN_TIME from v$pdbs")
             db_records = db_cursor.fetchall()
             db_conn.commit()
             return db_records
 
 class tablespace:
-
     def __init__(self):
-        self.PDB_NAME=None
-        self.USERNAME=None
+        self.PDB_NAME = None
+        self.USERNAME = None
 
-    def CreateTBS(self,pdb_name,user_name):
-        self.PDB_NAME=pdb_name
-        self.USERNAME=user_name
+    def CreateTBS(self, pdb_name, user_name):
+        self.PDB_NAME = pdb_name
+        self.USERNAME = user_name
         ifPDBexists = common.Pdbexists(self.PDB_NAME)
         if ifPDBexists:
-                try:
-                    with  cx_Oracle.connect(username, syspwd, dsn, mode=cx_Oracle.SYSDBA, encoding="UTF-8") as db_conn:
-                        db_cursor = db_conn.cursor()
-                        tbs="tbs_{user}".format(user=self.USERNAME)
-                        sql = "create tablespace {tablespace_name} datafile '/data/oracle/datafile/zctest/{pdb}/{tablespace_name}.dbf' SIZE 100M AUTOEXTEND ON NEXT 1G MAXSIZE 30G".format(tablespace_name=tbs,pdb=self.PDB_NAME)
-                        db_cursor.execute(enabled_ddl_parallel)
-                        db_cursor.execute(sql)
-                        db_cursor.execute(disabled_ddl_parallel)
-                        db_cursor.colse()
-                        db_conn.colse()
-                        ifTBSexists = common.Tbsexists(self.PDB_NAME)
-                        if ifTBSexists:
-                            return tbs+"创建成功"
-                        else:
-                            return tbs+"创建失败"
-                except Exception as e:
-                    return e
+            try:
+                with  cx_Oracle.connect(username, syspwd, dsn, mode=cx_Oracle.SYSDBA, encoding="UTF-8") as db_conn:
+                    db_cursor = db_conn.cursor()
+                    tbs = "tbs_{user}".format(user=self.USERNAME)
+                    sql = "create tablespace {tablespace_name} datafile '/data/oracle/datafile/zctest/{pdb}/{tablespace_name}.dbf' SIZE 100M AUTOEXTEND ON NEXT 1G MAXSIZE 30G".format(
+                        tablespace_name=tbs, pdb=self.PDB_NAME)
+                    db_cursor.execute(enabled_ddl_parallel)
+                    db_cursor.execute(sql)
+                    db_cursor.execute(disabled_ddl_parallel)
+                    db_cursor.colse()
+                    db_conn.colse()
+                    ifTBSexists = common.Tbsexists(self.PDB_NAME)
+                    if ifTBSexists:
+                        return tbs + "创建成功"
+                    else:
+                        return tbs + "创建失败"
+            except Exception as e:
+                return e
         else:
             return self.PDB_NAME + "不存在"
 
-    def DropTBS(self,pdb_name,user_name):
+    def DropTBS(self, pdb_name, user_name):
         self.PDB_NAME = pdb_name
         self.USERNAME = user_name
         # ifPDBexists = common.Pdbexists(self.PDB_NAME)
@@ -126,14 +129,15 @@ class PDB:
                 with  cx_Oracle.connect(username, syspwd, dsn, mode=cx_Oracle.SYSDBA, encoding="UTF-8") as db_conn:
                     db_cursor = db_conn.cursor()
                     db_cursor.execute(enabled_ddl_parallel)
-                    db_cursor.execute(
-                        """CREATE PLUGGABLE DATABASE $PDB_NAME ADMIN USER admin IDENTIFIED BY :passwd ROLES=(CONNECT,DBA)
-                    DEFAULT  TABLESPACE $PDB_NAME DATAFILE '/data/oracle/datafile/zctest/:pdb/:pdb.dbf'
-                    SIZE  100M AUTOEXTEND  ON  PATH_PREFIX = '/data/oracle/datafile/zctest/:pdb/'
-                    FILE_NAME_CONVERT = ('/data/oracle/datafile/zctest/pdbseed', '/data/oracle/datafile/zctest/:pdb')""",
-                        passwd="ChangeMe", pdb=self.PDB_NAME)
+                    create_sql = """CREATE PLUGGABLE DATABASE {pdb} ADMIN USER admin IDENTIFIED BY {passwd} ROLES=(CONNECT,DBA)
+                                    DEFAULT  TABLESPACE {pdb} DATAFILE '{datafilepath}/{pdb}/{pdb}.dbf'
+                                    SIZE  100M AUTOEXTEND  ON  PATH_PREFIX = '{datafilepath}/{pdb}/'
+                                    FILE_NAME_CONVERT = ('{datafilepath}/pdbseed', '{datafilepath}/{pdb}')""".format(
+                        pdb=self.PDB_NAME, passwd='"Changeme"', datafilepath=realfilepath)
+                    open_sql = "alter pluggable database {pdb} open".format(pdb=self.PDB_NAME)
+                    db_cursor.execute(create_sql)
+                    db_cursor.execute(open_sql)
                     db_cursor.execute(disabled_ddl_parallel)
-                    db_cursor.execute("alter pluggable database :pdb open", pdb=self.PDB_NAME)
                     db_cursor.colse()
                     db_conn.colse()
             except Exception as e:
@@ -146,8 +150,10 @@ class PDB:
             try:
                 with  cx_Oracle.connect(username, syspwd, dsn, mode=cx_Oracle.SYSDBA, encoding="UTF-8") as db_conn:
                     db_cursor = db_conn.cursor()
-                    db_cursor.execute("alter pluggable database :pdb close", pdb=self.PDB_NAME)
-                    db_cursor.execute("drop pluggable database :pdb including datafiles", pdb=self.PDB_NAME)
+                    close_sql="alter pluggable database {pdb} close".format(pdb=self.PDB_NAME)
+                    drop_sql="drop pluggable database {pdb} including datafiles".format(pdb=self.PDB_NAME)
+                    db_cursor.execute(close_sql)
+                    db_cursor.execute(drop_sql)
                     db_cursor.colse()
                     db_conn.colse()
             except Exception as e:
@@ -185,7 +191,7 @@ class USER:
         else:
             return self.PDB_NAME + "不存在"
 
-    def CreateUser(self,pdb_name,user_name):
+    def CreateUser(self, pdb_name, user_name):
         self.PDB_NAME = pdb_name
         self.USERNAME = user_name
         ifexists = common.Pdbexists(self.PDB_NAME)
@@ -195,10 +201,12 @@ class USER:
                 try:
                     with  cx_Oracle.connect(username, syspwd, dsn, mode=cx_Oracle.SYSDBA, encoding="UTF-8") as db_conn:
                         tbs = "tbs_{user}".format(user=self.USERNAME)
-                        pwd="ChangeMe"
+                        pwd = "ChangeMe"
                         db_cursor = db_conn.cursor()
-                        db_cursor.execute("alter session set container=;pdb",pdb=self.PDB_NAME)
-                        db_cursor.execute("create user :pdb default tablespace :tablespace identified by :passwd  PROFILE default1", pdb=self.PDB_NAME,tablespace=tbs,passwd=pwd)
+                        db_cursor.execute("alter session set container=;pdb", pdb=self.PDB_NAME)
+                        db_cursor.execute(
+                            "create user :pdb default tablespace :tablespace identified by :passwd  PROFILE default1",
+                            pdb=self.PDB_NAME, tablespace=tbs, passwd=pwd)
                         db_cursor.execute("grant dba to :pdb", pdb=self.PDB_NAME)
                         db_cursor.colse()
                         db_conn.colse()
