@@ -21,10 +21,10 @@ def whatif(opertion):
                     print("create done.")
             elif opertion == 'drop':
                 if ifPDBexists:
-                    print("The Pluggable database exists")
                     func(self, *args, **kwargs)
-                else:
                     print("drop done.")
+                else:
+                    print("The Pluggable database not exists")
         return wrapper
     return decorator
 
@@ -39,9 +39,11 @@ class common:
         with  cx_Oracle.connect(username, syspwd, dsn, mode=cx_Oracle.SYSDBA, encoding="UTF-8") as db_conn:
             db_cursor = db_conn.cursor()
             db_cursor.execute("select count(1) from dba_pdbs where pdb_name= upper(:pdb)", pdb=self.PDB_NAME)
-            db_records = db_cursor.fetchall()
-            db_conn.commit()
-            return db_records[0][0]
+            db_records = db_cursor.fetchall()[0][0]
+            if db_records:
+                return True
+            else:
+                return False
 
 
 class PDB:
@@ -85,7 +87,8 @@ class PDB:
 
 
 if __name__ == '__main__':
-    tt = "test"
-    t1 = PDB()
-    t2 = t1.DropPDB(tt)
+    tt = "test1"
+    t1 = common()
+    t2 = t1.Pdbexists(tt)
     print(t2)
+

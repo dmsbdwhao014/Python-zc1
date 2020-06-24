@@ -1,4 +1,4 @@
-import cx_Oracle, os
+import cx_Oracle, os,functools
 
 username = 'sys'
 syspwd = 'Oracle'
@@ -8,25 +8,42 @@ enabled_ddl_parallel = "alter session force parallel ddl parallel 8"
 disabled_ddl_parallel = "alter session disable parallel ddl"
 realfilepath="/u01/app/oracle/oradata/zctest"
 
-def whatif(opertion):
-    def decorator(func):
-        def wrapper(self, *args, **kwargs):
+
+def Pdbexists(self, pdb_name):
+    self.PDB_NAME = pdb_name
+    with  cx_Oracle.connect(username, syspwd, dsn, mode=cx_Oracle.SYSDBA, encoding="UTF-8") as db_conn:
+        db_cursor = db_conn.cursor()
+        db_cursor.execute("select count(1) from dba_pdbs where pdb_name= :pdb", pdb=self.PDB_NAME)
+        db_records = db_cursor.fetchall()[0][0]
+        if db_records:
+            return True
+        else:
+            return False
+
+
+class whatif:
+    def decorator(self,func,format1,format2):
+        def wrapper(*args, **kwargs):
             ifPDBexists_init = common()
-            ifPDBexists = ifPDBexists_init.Pdbexists(*args)
-            if opertion == 'create':
+            ifPDBexists = ifPDBexists_init.Pdbexists(*args[0])
+            ifProfexists = ifPDBexists_init.Profileexists(*args[0])
+            ifUSERexists = ifPDBexists_init.Userexists(*args)
+            ifTBSexists= ifPDBexists_init.Tbsexists(*args)
+            if format1 == 'create':
+                print("开始{} {}操作".format(format1,format2))
                 if ifPDBexists:
                     print("The Create Pluggable database already exists")
                 else:
                     func(self, *args, **kwargs)
-                    print("create done.")
-            elif opertion == 'drop':
-                if ifPDBexists:
-                    print("The Create Pluggable database exists")
-                    func(self, *args, **kwargs)
-                else:
-                    print("drop done.")
+            elif format1 == 'drop':
+                print("开始{} {}操作".format(format1,format2))
         return wrapper
-    return decorator
+
+    def first(self,format1,format2):
+        def foo(func):
+            return self.decorator(func, format1,format2)
+        return foo
+
 
 class common:
     def __init__(self):
@@ -38,9 +55,11 @@ class common:
         with  cx_Oracle.connect(username, syspwd, dsn, mode=cx_Oracle.SYSDBA, encoding="UTF-8") as db_conn:
             db_cursor = db_conn.cursor()
             db_cursor.execute("select count(1) from dba_pdbs where pdb_name= :pdb", pdb=self.PDB_NAME)
-            db_records = db_cursor.fetchall()
-            db_conn.commit()
-            return db_records[0][0]
+            db_records = db_cursor.fetchall()[0][0]
+            if db_records:
+                return True
+            else:
+                return False
 
     def Userexists(self, pdb_name, user_name):
         self.PDB_NAME = pdb_name
@@ -50,9 +69,11 @@ class common:
             db_cursor.execute(
                 "select count(1) from cdb_users a join dba_pdbs b on a.CON_ID=b.CON_ID where username=:user and PDB_NAME=:pdb",
                 pdb=self.PDB_NAME, user=self.USERNAME)
-            db_records = db_cursor.fetchall()
-            db_conn.commit()
-            return db_records[0][0]
+            db_records = db_cursor.fetchall()[0][0]
+            if db_records:
+                return True
+            else:
+                return False
 
     def Profileexists(self, pdb_name):
         self.PDB_NAME = pdb_name
@@ -61,9 +82,11 @@ class common:
             db_cursor.execute(
                 "select count(1) from cdb_profiles a join dba_pdbs b on a.CON_ID=b.CON_ID where PROFILE='DEFAULT1' and PDB_NAME=:pdb",
                 pdb=self.PDB_NAME)
-            db_records = db_cursor.fetchall()
-            db_conn.commit()
-            return db_records[0][0]
+            db_records = db_cursor.fetchall()[0][0]
+            if db_records:
+                return True
+            else:
+                return False
 
     def Tbsexists(self, pdb_name, user_name):
         self.PDB_NAME = pdb_name
@@ -73,9 +96,11 @@ class common:
             db_cursor.execute(
                 "select TABLESPACE_NAME from cdb_tablespaces a join dba_pdbs b on a.CON_ID=b.CON_ID where TABLESPACE_NAME like '%:user%' and PDB_NAME=':pdb'",
                 pdb=self.PDB_NAME, user=self.USERNAME)
-            db_records = db_cursor.fetchall()
-            db_conn.commit()
-            return db_records
+            db_records = db_cursor.fetchall()[0][0]
+            if db_records:
+                return True
+            else:
+                return False
 
     def ListUSER(self, pdb_name):
         self.PDB_NAME = pdb_name
@@ -86,7 +111,6 @@ class common:
                 "select PDB_NAME,username,created from cdb_users a join dba_pdbs b on a.CON_ID=b.CON_ID where PDB_NAME=upper(':pdb') order by created desc fetch first 5 rows only",
                 pdb=self.PDB_NAME)
             db_records = db_cursor.fetchall()
-            db_conn.commit()
             return db_records
 
     def ListPDB(self):
@@ -94,7 +118,6 @@ class common:
             db_cursor = db_conn.cursor()
             db_cursor.execute("select CON_ID,NAME,OPEN_MODE,RESTRICTED,OPEN_TIME from v$pdbs")
             db_records = db_cursor.fetchall()
-            db_conn.commit()
             return db_records
 
 class tablespace:
@@ -103,7 +126,6 @@ class tablespace:
         self.USERNAME = None
 
 
-    @whatif(opertion='create')
     def CreateTBS(self, pdb_name, user_name):
         self.PDB_NAME = pdb_name
         self.USERNAME = user_name

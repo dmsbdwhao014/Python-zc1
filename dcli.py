@@ -1,5 +1,6 @@
-# !/usr/bin/env python
-#
+
+#!/usr/bin/env python
+# 
 # $Header: oss/deploy/scripts/dcli.py /st_oss_18.1.3.0.0/1 2018/10/30 06:37:13 apfwkr Exp $
 #
 # dcli.py
@@ -64,14 +65,14 @@
 #    rohansen    08/04/10 - support python 2.6 deprecated popen
 #    rohansen    03/02/10 - support key removal option
 #    rohansen    12/23/08 - support directory copy and destination option
-#    rohansen    10/29/08 - added quotes to prevent shell expansion
+#    rohansen    10/29/08 - added quotes to prevent shell expansion 
 #    rohansen    09/16/08 - add vmstat option
 #    rohansen    09/11/08 - kill child processes after ctrl-c
 #    rohansen    06/27/08 - add -k option to push keys to cells
 #    sidatta     07/22/08 - Changing name to dcli
 #    rohansen    04/29/08 - more options
 #    rohansen    04/01/08 - Creation
-#
+# 
 # --------------------------
 
 """
@@ -104,20 +105,20 @@ Examples:
  dcli -g mycells cellcli -e alter iormplan active
  dcli -g mycells -x reConfig.scl
 """
-import glob
 import os
 import os.path
-import re
-import signal
-import socket
-import stat
-import sys
-import tempfile
-import threading
 import time
+import stat
+import re
+import sys
+import socket
+import platform
+import threading
+import signal
+import glob
+import tempfile
 from optparse import OptionParser
-
-if sys.version_info < (2, 4):
+if sys.version_info < (2,4):
     import popen2
 else:
     from subprocess import Popen, PIPE
@@ -134,25 +135,22 @@ SSH = "/usr/bin/ssh"
 # default location of SCP program
 SCP = "/usr/bin/scp"
 # test mode for test configurations
-TESTMODE = ''
+TESTMODE=''
 # SSH file definitions:
-SSHSUBDIR = ".ssh"
-SSHDSAFILE = "id_dsa.pub"
-SSHRSAFILE = "id_rsa.pub"
-SSHKEY = []
-
+SSHSUBDIR=".ssh"
+SSHDSAFILE="id_dsa.pub"
+SSHRSAFILE="id_rsa.pub"
+SSHKEY=[]
 
 # Error class used to handle environment errors (e.g. file not found)
 class Error(Exception):
     def __init__(self, msg):
         self.msg = msg
 
-
 # UsageError class is used to handle errors caused by invalid options
 class UsageError(Exception):
     def __init__(self, msg):
         self.msg = msg
-
 
 def buildCellList(cells, filename, verbose):
     """
@@ -165,33 +163,33 @@ def buildCellList(cells, filename, verbose):
     Returns the list of unique cells.
     """
     celllist = []
-    if filename:
+    if filename :
         filename = filename.strip()
-        try:
+        try :
             fd = open(filename);
             lines = fd.readlines()
-            for line in lines:
+            for line in lines :
                 line = line.strip();
-                if len(line) > 0 and not line.startswith("#"):
+                if len(line) > 0 and not line.startswith("#") :
                     celllist.append(line)
         except IOError, (errno, strerror):
             raise Error("I/O error(%s) on %s: %s" %
                         (errno, filename, strerror))
-
-    if cells:
+        
+    if cells :
         for cline in cells:
             cellSplit = cline.split(",");
-            for cell in cellSplit:
+            for cell in cellSplit :
                 celllist.append(cell.strip());
 
     uniqueCellList = []
-    for c in celllist:
+    for c in celllist :
         if c not in uniqueCellList:
             uniqueCellList.append(c);
     return uniqueCellList;
 
-
-def buildCommand(args, verbose, hideStderr):
+      
+def  buildCommand( args, verbose, hideStderr ):
     """
     Build a command string to be sent to all hosts.
 
@@ -205,11 +203,10 @@ def buildCommand(args, verbose, hideStderr):
         for word in args:
             command += " " + word;
     if hideStderr:
-        command += ") 2>/dev/null"
+       command += ") 2>/dev/null"
     else:
-        command += ") 2>&1"
+       command += ") 2>&1"
     return command
-
 
 def findFiles(path):
     '''Return list of files matching pattern in path.'''
@@ -217,12 +214,11 @@ def findFiles(path):
     list = []
     path = os.path.expanduser(path)
     path = os.path.expandvars(path)
-    list = glob.glob(path)
+    list = glob.glob(path) 
 
     return list
 
-
-def checkFile(filepath, isExec, verbose):
+def checkFile( filepath, isExec, verbose):
     """
     Test for existence and permissions of files to be copied or executed remotely.
 
@@ -231,23 +227,22 @@ def checkFile(filepath, isExec, verbose):
     files = findFiles(filepath)
 
     if not files:
-        raise Error("File does not exist: %s" % filepath);
+       raise Error("File does not exist: %s" % filepath );
     else:
-        for file in files:
-            if not os.path.exists(file):
-                raise Error("File does not exist: %s" % file);
-            if isExec:
-                if not os.path.isfile(file):
-                    raise Error("Exec file is not a regular file: %s" % file);
-            elif not os.path.isfile(file) and not os.path.isdir(file):
-                raise Error("File is not a regular file or directory: %s" % file);
-            st = os.stat(file)
-            mode = st[stat.ST_MODE]
-            if isExec and os.name == "posix" and not (mode & stat.S_IEXEC):  # same as stat.S_IXUSR
-                raise Error("Exec file does not have owner execute permissions");
+       for file in files:
+          if not os.path.exists(file):  
+             raise Error("File does not exist: %s" % file );
+          if isExec:
+             if not os.path.isfile(file): 
+                raise Error("Exec file is not a regular file: %s" % file );
+          elif not os.path.isfile(file) and not os.path.isdir(file): 
+              raise Error("File is not a regular file or directory: %s" % file );
+          st = os.stat(file)
+          mode = st[stat.ST_MODE]
+          if isExec and os.name == "posix" and not (mode & stat.S_IEXEC):   # same as stat.S_IXUSR
+             raise Error("Exec file does not have owner execute permissions");
 
-
-def checkKeys(verbose):
+def checkKeys( verbose):
     """
     Test for existence of rsa or dsa public keys for current user.
 
@@ -258,29 +253,26 @@ def checkKeys(verbose):
     sought. These are id_dsa.pub and id_rsa.pub in ~/.ssh.
     """
     global SSHKEY
-    sshDir = os.path.join(os.path.expanduser("~"), SSHSUBDIR)
-    rsaKeyFile = os.path.join(sshDir, SSHRSAFILE);
-    dsaKeyFile = os.path.join(sshDir, SSHDSAFILE);
+    sshDir = os.path.join( os.path.expanduser("~"), SSHSUBDIR )
+    rsaKeyFile = os.path.join( sshDir, SSHRSAFILE );
+    dsaKeyFile = os.path.join( sshDir, SSHDSAFILE );
     if TESTMODE:
         SSHKEY.append("ThisIsYourKey");
     elif os.path.isfile(dsaKeyFile):
-        f = open(dsaKeyFile)
-        SSHKEY.append(f.read().strip())
-        if (verbose): print
-        "DSA KEY: " + SSHKEY[-1]
+        f = open(dsaKeyFile )
+        SSHKEY.append( f.read().strip() )
+        if (verbose ): print "DSA KEY: " + SSHKEY[-1]
         f.close()
     if os.path.isfile(rsaKeyFile):
-        f = open(rsaKeyFile)
-        SSHKEY.append(f.read().strip())
-        if (verbose): print
-        "RSA KEY: " + SSHKEY[-1]
+        f = open(rsaKeyFile )
+        SSHKEY.append( f.read().strip() )
+        if (verbose ): print "RSA KEY: " + SSHKEY[-1]
         f.close()
     if not SSHKEY:
         raise Error("Neither RSA nor DSA keys have been generated for current user.\n"
                     "Run 'ssh-keygen -t rsa' to generate an ssh key pair.");
 
-
-def checkVmstat(vmstatOptions, verbose):
+def checkVmstat( vmstatOptions, verbose ):
     """
     Check vmstat option for valid periodic statistic options.
 
@@ -306,41 +298,41 @@ def checkVmstat(vmstatOptions, verbose):
     vmstatCommand = "vmstat "
     vmOpts = vmstatOptions.split()
     for op in vmOpts:
-        if op in ("-f", "-s", "-m", "-p", "-D", "-d", "-V"):
+        if op in ("-f","-s","-m","-p","-D", "-d","-V"):
             return None, None
 
         num = getInt(op)
         # less that 1 for delay or count is invalid
-        if num != None and num < 1:
+        if num != None and num < 1 :
             return None, None
         if num:
-            if repeat:
+            if repeat :
                 # more than 2 numbers as options
                 return None, None
             elif delay:
-                repeat = num
+                repeat = num 
             else:
                 delay = num
         elif op != "-n":
             # we handle -n ourselves
             vmstatCommand += op + " "
-    # default delay is immediate (no repeat)
-    if delay:
+    #default delay is immediate (no repeat)
+    if  delay:
         vmstatCommand += "%d " % delay
 
         # default repeat is infinite
         if not repeat:
             repeat = -1
-
+    
     else:
-        # without delay, default repeat is 1
+        #without delay, default repeat is 1
         vmstatCommand += "1 "
         repeat = 1
 
     return repeat, vmstatCommand
 
 
-def copyAndExecute(cells, copyfiles, execfile, destfile, command, options):
+def copyAndExecute( cells, copyfiles, execfile, destfile, command, options ) :
     """
     Send files or a command to execute on a list a cells.
 
@@ -372,30 +364,27 @@ def copyAndExecute(cells, copyfiles, execfile, destfile, command, options):
     scpOptions = options.scpOptions
     serialize = options.serializeOps or options.pushKey
     verbose = options.verbosity
-
+   
     files = list()
     updateLock = threading.Lock()
-
-    class WorkThread(threading.Thread):
+            
+    class WorkThread (threading.Thread):
         """
         Command thread issues one command to one cell.
-
+        
         one thread is created for each cell
         allowing parallel operations.
         """
-
-        def __init__(self, cell):
-            threading.Thread.__init__(self)
-            self.cell = cell
-            self.child = None
-            self.output_truncated = 0
-
+        def __init__( self, cell ):
+             threading.Thread.__init__(self)
+             self.cell = cell
+             self.child = None
+             self.output_truncated = 0
         def run(self):
             """
             One thread for each WorkThread.start()
             """
-            if verbose: print
-            "...entering thread for %s:" % self.cell
+            if verbose : print "...entering thread for %s:" % self.cell
             childStatus = 0
             childOutput = [];
             opString = " ";
@@ -406,9 +395,9 @@ def copyAndExecute(cells, copyfiles, execfile, destfile, command, options):
                 scpOpString += scpOptions + " "
             else:
                 scpOpString = opString
-            if execfile and scpOpString.find("-p") < 0:
+            if execfile and scpOpString.find("-p") < 0 :
                 scpOpString += "-p "
-
+                           
             sshUser = ""
             scpHost = self.cell
             if files:
@@ -428,67 +417,66 @@ def copyAndExecute(cells, copyfiles, execfile, destfile, command, options):
                 # This will be serialized because host identity and password prompts
                 # could overlay each other if the occur together.
                 keys = SSHKEY[0]
-                if len(SSHKEY) > 1:
+                if len(SSHKEY)> 1:
                     keys += "\\|" + SSHKEY[1]
-                sshCommand = "ssh " + opString + sshUser + self.cell + \
-                             " \" cd; mkdir -pm 700 .ssh; if grep '" + keys + \
-                             "' .ssh/authorized_keys  > /dev/null 2>&1 ; then echo ssh key already exists ; elif echo '" + \
-                             SSHKEY[0] + "' >> .ssh/authorized_keys ; then chmod 644 .ssh/authorized_keys ;" + \
-                             " echo ssh key added ; fi \""
+                sshCommand = "ssh " + opString + sshUser + self.cell +  \
+                    " \" cd; mkdir -pm 700 .ssh; if grep '" + keys + \
+                    "' .ssh/authorized_keys  > /dev/null 2>&1 ; then echo ssh key already exists ; elif echo '" + \
+                    SSHKEY[0] + "' >> .ssh/authorized_keys ; then chmod 644 .ssh/authorized_keys ;" + \
+                    " echo ssh key added ; fi \""
                 if TESTMODE:
                     sshCommand = "echo " + sshCommand
-                childStatus, l = self.runCommand(sshCommand, True)
-                childOutput.extend(l)
+		childStatus, l = self.runCommand( sshCommand, True)
+		childOutput.extend(l)
+		    
+	    if not childStatus and files :
+ 
+		list_string = ""
+		for item_file in files:
+		    list_string += " " + item_file;
 
-            if not childStatus and files:
+		if  TESTMODE:
+		    # for testing
+		    scpCommand = "echo scp " + list_string +  " " + scpHost + ":" + destname
+		else:
+		    scpCommand = SCP + scpOpString + list_string +  " " + scpHost + ":" + destname
 
-                list_string = ""
-                for item_file in files:
-                    list_string += " " + item_file;
+		childStatus, l = self.runCommand( scpCommand, serialize)
+		childOutput.extend(l)
+		
+	    if not childStatus and command :
+		if  TESTMODE:
+		    # for testing
+		    sshCommand = "echo ssh " + opString + sshUser  + self.cell + " " + command
+		else:
+		    sshCommand = SSH + opString + sshUser + self.cell + " " + command
 
-                if TESTMODE:
-                    # for testing
-                    scpCommand = "echo scp " + list_string + " " + scpHost + ":" + destname
-                else:
-                    scpCommand = SCP + scpOpString + list_string + " " + scpHost + ":" + destname
+		childStatus, l = self.runCommand( sshCommand, serialize )
+		childOutput.extend(l)
+		
+	    if not childStatus and SSHKEY and dropKey:
+		# Perform the -unkey option step by sending the public key to cell
+		keys = SSHKEY[0]
+		if len(SSHKEY)> 1:
+		    keys += "\\|" + SSHKEY[1]
+		sshCommand = "ssh " + opString + sshUser + self.cell +  \
+		    " \" if ! grep '" + keys + \
+		    "' .ssh/authorized_keys > /dev/null 2>&1 ; then echo ssh key did not exist ; elif sed '\\%" + \
+		    keys + "%d' .ssh/authorized_keys > .ssh/authorized_keys__ ; then " + \
+                    " mv .ssh/authorized_keys__ .ssh/authorized_keys; echo ssh key dropped ; fi \""
+		if TESTMODE:
+		    sshCommand = "echo " + sshCommand
+		childStatus, l = self.runCommand( sshCommand, serialize )
+		childOutput.extend(l)
+		
+	    updateLock.acquire()
+	    status[self.cell] = childStatus
+	    output[self.cell] = childOutput
+	    updateLock.release()
+	    if verbose : print "...exiting thread for %s status: %d" % (self.cell, childStatus)
+	    return
 
-                childStatus, l = self.runCommand(scpCommand, serialize)
-                childOutput.extend(l)
-
-            if not childStatus and command:
-                if TESTMODE:
-                    # for testing
-                    sshCommand = "echo ssh " + opString + sshUser + self.cell + " " + command
-                else:
-                    sshCommand = SSH + opString + sshUser + self.cell + " " + command
-
-                childStatus, l = self.runCommand(sshCommand, serialize)
-                childOutput.extend(l)
-
-            if not childStatus and SSHKEY and dropKey:
-                # Perform the -unkey option step by sending the public key to cell
-                keys = SSHKEY[0]
-                if len(SSHKEY) > 1:
-                    keys += "\\|" + SSHKEY[1]
-                sshCommand = "ssh " + opString + sshUser + self.cell + \
-                             " \" if ! grep '" + keys + \
-                             "' .ssh/authorized_keys > /dev/null 2>&1 ; then echo ssh key did not exist ; elif sed '\\%" + \
-                             keys + "%d' .ssh/authorized_keys > .ssh/authorized_keys__ ; then " + \
-                             " mv .ssh/authorized_keys__ .ssh/authorized_keys; echo ssh key dropped ; fi \""
-                if TESTMODE:
-                    sshCommand = "echo " + sshCommand
-                childStatus, l = self.runCommand(sshCommand, serialize)
-                childOutput.extend(l)
-
-            updateLock.acquire()
-            status[self.cell] = childStatus
-            output[self.cell] = childOutput
-            updateLock.release()
-            if verbose: print
-            "...exiting thread for %s status: %d" % (self.cell, childStatus)
-            return
-
-        def runCommand(self, sshCommand, serialize):
+        def runCommand( self, sshCommand, serialize ):
             """
             Run a command in a subprocess and return its status and output lines.
 
@@ -503,22 +491,21 @@ def copyAndExecute(cells, copyfiles, execfile, destfile, command, options):
             tmpBannerFd = None
             lwbanner = []
             banner_or_err = []
-            tmpBannerFd, tmpBannerFile = tempfile.mkstemp(suffix="." + self.cell, prefix="banner_")
+            tmpBannerFd, tmpBannerFile = tempfile.mkstemp(suffix="."+self.cell, prefix="banner_")
             tmpFd = os.fdopen(tmpBannerFd, "r+")
-            sshCommand += " 2>" + tmpBannerFile
+            sshCommand += " 2>"+tmpBannerFile
 
-            if verbose: print
-            "execute: %s " % sshCommand
+            if verbose : print "execute: %s " % sshCommand
             status = 0
-            if sys.version_info >= (2, 4):
+            if sys.version_info >= (2,4):
                 if os.name == "posix":
-                    child = Popen(sshCommand, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=True)
+                    child = Popen( sshCommand, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=True)
                 else:
-                    child = Popen(sshCommand, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+                    child = Popen( sshCommand, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
 
                 self.child = child
                 r = child.stdout
-                w = child.stdin
+                w = child.stdin     
                 w.close()
 
                 l = self.readNLines(r, serialize)
@@ -526,8 +513,8 @@ def copyAndExecute(cells, copyfiles, execfile, destfile, command, options):
 
                 if self.output_truncated == 1 and child.poll() == None:
                     # stop child process since it is still running
-                    print >> sys.stderr, "Killing child pid %d to %s..." % \
-                                         (child.pid, self.cell)
+                    print >>sys.stderr,"Killing child pid %d to %s..." %\
+                            (child.pid, self.cell)
                     os.kill(child.pid, signal.SIGTERM)
                     t = 2.0  # max wait time in secs
                     while child.poll() == None:
@@ -545,31 +532,30 @@ def copyAndExecute(cells, copyfiles, execfile, destfile, command, options):
                     os.unlink(tmpBannerFile)
 
                     if command:
-                        if status == 255:
-                            self.printBannerOrError(banner_or_err)
-                        else:
-                            if showBanner:
-                                lwbanner = self.readLinesWithBanner(l, banner_or_err)
-                                l = lwbanner
+                      if status == 255: 
+                        self.printBannerOrError(banner_or_err)
+                      else:
+                         if showBanner:
+                           lwbanner = self.readLinesWithBanner(l,banner_or_err)
+                           l = lwbanner 
                     else:
-                        if status != 0:
-                            self.printBannerOrError(banner_or_err)
+                      if status != 0:
+                        self.printBannerOrError(banner_or_err)
 
                     if self.output_truncated == 1:
                         status = 1
-                except OSError, e:
+                except OSError,e:
                     # os error 10 (no child process) is ok
-                    if e.errno == 10:
-                        if verbose: print
-                        "No child process %d for wait" % child.pid
+                    if e.errno ==10:
+                        if verbose : print "No child process %d for wait" % child.pid
                     else:
                         raise
-            else:
+            else:                    
                 if os.name == "posix":
-                    child = popen2.Popen4(sshCommand)
+                    child = popen2.Popen4( sshCommand )
                     self.child = child
                     r = child.fromchild
-                    w = child.tochild
+                    w = child.tochild     
                     w.close()
                     l = r.readlines()
                     r.close()
@@ -580,25 +566,24 @@ def copyAndExecute(cells, copyfiles, execfile, destfile, command, options):
                         os.unlink(tmpBannerFile)
 
                         if command:
-                            if status == 255:
-                                self.printBannerOrError(banner_or_err)
-                            else:
-                                if showBanner:
-                                    lwbanner = self.readLinesWithBanner(l, banner_or_err)
-                                    l = lwbanner
+                          if status == 255: 
+                            self.printBannerOrError(banner_or_err)
+                          else:
+                             if showBanner:
+                               lwbanner = self.readLinesWithBanner(l,banner_or_err)
+                               l = lwbanner 
                         else:
-                            if status != 0:
-                                self.printBannerOrError(banner_or_err)
-
-                    except OSError, e:
+                          if status != 0:
+                             self.printBannerOrError(banner_or_err)
+                           
+                    except OSError,e:
                         # os error 10 (no child process) is ok
-                        if e.errno == 10:
-                            if verbose: print
-                            "No child process %d for wait" % child.pid
+                        if e.errno ==10:
+                            if verbose : print "No child process %d for wait" % child.pid
                         else:
                             raise
                 else:
-                    r, w = popen2.popen4(sshCommand)
+                    r,w = popen2.popen4( sshCommand )
                     # we assume non-interactive commands
                     # close stdin so noone waits for us
                     w.close()
@@ -614,24 +599,23 @@ def copyAndExecute(cells, copyfiles, execfile, destfile, command, options):
              the banner or ssh/scp's stderr was written to
             """
             banner_or_err = [];
-            for l in iter(bannerfd.readline, ""):
-                banner_or_err.append(l)
+            for l in iter(bannerfd.readline,""):
+              banner_or_err.append(l)
             return banner_or_err
-
+        
         def printBannerOrError(self, bannerOrError):
             """
-             print ssh/scp's stderr. This can be the
+             print ssh/scp's stderr. This can be the 
              remote node's banner (if ssh is successful) OR
              error info (if ssh/scp is not successful)
             """
             for i in bannerOrError:
-                print
-                self.cell + ":" + i
+                print self.cell +":" + i
 
         def readLinesWithBanner(self, r, banner):
             """
-             print the output lines from ssh command with
-             remote node's banner if showbanner option is
+             print the output lines from ssh command with 
+             remote node's banner if showbanner option is 
              specified.
             """
             lines_with_banner = [];
@@ -660,98 +644,98 @@ def copyAndExecute(cells, copyfiles, execfile, destfile, command, options):
                 display_chunks = 0
 
             for l in iter(r.readline, ""):
-                outputLines.append(l)
-                i += 1
-                if i > maxLines:
-                    my_cell = {}
-                    my_status = {}
-                    my_output = {}
-                    myStatus = 0
-                    myOutput = [];
-                    myOutput.extend(outputLines)
-                    my_status[self.cell] = myStatus
-                    my_output[self.cell] = myOutput
-                    my_cell[self.cell] = self.cell
-                    listResults(my_cell, my_status, my_output,
-                                options.listNegatives, options.regexp)
-                    i = 0
-                    outputLines = [];
-                    if display_chunks == 1:
-                        continue
-                    else:
-                        print >> sys.stderr, "\nError: " + self.cell + \
-                                             " is returning over " + str(maxLines) + \
-                                             " lines; output is truncated !!!"
-                        print >> sys.stderr, "Command could be retried with" + \
-                                             " the serialize option: --serial"
-                        self.output_truncated = 1
-                        break
+               outputLines.append(l)
+               i += 1
+               if i > maxLines:
+                   my_cell = {}
+                   my_status = {}
+                   my_output = {}
+                   myStatus = 0
+                   myOutput = [];
+                   myOutput.extend(outputLines)
+                   my_status[self.cell] = myStatus
+                   my_output[self.cell] = myOutput
+                   my_cell[self.cell] = self.cell
+                   listResults( my_cell, my_status, my_output,
+                                options.listNegatives, options.regexp )
+                   i = 0
+                   outputLines = [];
+                   if display_chunks == 1:
+                       continue
+                   else:
+                       print >>sys.stderr,"\nError: " + self.cell +\
+                           " is returning over " + str(maxLines) +\
+                           " lines; output is truncated !!!"
+                       print >>sys.stderr,"Command could be retried with" +\
+                           " the serialize option: --serial"
+                       self.output_truncated = 1
+                       break
             return outputLines
-
-    # end of method and WorkThread class
+ 
+    #end of method and WorkThread class    
 
     # Prepare and spawn threads to SSH to cells
     output = {}
     status = {}
     waitList = []
-
-    if (command or execfile) and not TESTMODE and not os.path.exists(SSH):
-        raise Error("SSH program does not exist: %s " % SSH)
+        
+    if  (command or execfile) and not TESTMODE and not os.path.exists(SSH):
+        raise Error ( "SSH program does not exist: %s " % SSH )
     elif (copyfiles or execfile) and not TESTMODE and not os.path.exists(SCP):
-        raise Error("SCP program does not exist: %s " % SCP)
-
+        raise Error ( "SCP program does not exist: %s " % SCP )
+    
     file = copyfiles or execfile
     if file:
 
         if copyfiles:
-            for file in copyfiles:
-                files.append(file.strip())
+           for file in copyfiles:
+               files.append(file.strip())
 
-            destname = ""
-
+           destname = ""
+       
         if execfile:
-            file_exec = execfile.strip()
-            files.append(file_exec)
-            basename = os.path.basename(file_exec)
-            destname = basename
-
+           file_exec = execfile.strip()
+           files.append(file_exec)
+           basename = os.path.basename(file_exec)
+           destname = basename   
+ 
         if destfile:
-            destname = destfile
-
+           destname = destfile
+            
         if execfile:
             # an exec file can be copied to a directory or copied to a file
             # with a different name.
-
-            command = "("
+           
+            command = "(" 
             if execfile.strip().endswith(".scl"):
-                command += "if [[ -d " + destname + " ]]; then cellcli -e @" + \
-                           destname + "/" + basename + " ; else cellcli -e @" + \
-                           destname + " ; fi"
+                command += "if [[ -d " + destname + " ]]; then cellcli -e @" +\
+                          destname + "/" + basename + " ; else cellcli -e @" +\
+                          destname + " ; fi"
             else:
                 absdestname = destname
                 if not os.path.isabs(destname):
                     absdestname = "./" + destname
                 command += "if [[ -d " + destname + " ]]; then " + \
-                           absdestname + "/" + basename + " ; else " + \
-                           absdestname + " ; fi"
+                          absdestname + "/" + basename + " ; else " +\
+                          absdestname + " ; fi"
 
-            command += ")"
+            command += ")" 
             if hideStderr:
-                command += " 2>/dev/null"
+              command += " 2>/dev/null"
             else:
-                command += " 2>&1"
+              command += " 2>&1"
 
     # enclose command in single quotes so shell does not interpret arguments
     # pre-existing single quotes must be escaped to survive
     # if quotes aready exist then don't change it
     if command and not (re.match("^'.*'$", command)
                         or re.match("^\".*\"$", command)):
-        command = command.replace("'", "'\\''")
+        command = command.replace("'","'\\''")
         command = "'" + command + "'"
 
     try:
         for cell in cells:
-            cellThread = WorkThread(cell)
+            cellThread = WorkThread( cell )
             cellThread.start()
             if serialize:
                 while cellThread.isAlive():
@@ -760,18 +744,16 @@ def copyAndExecute(cells, copyfiles, execfile, destfile, command, options):
                 waitList.append(cellThread)
 
         for thread in waitList:
-            # we must use time'd join to allow keyboard interrupt
+            #we must use time'd join to allow keyboard interrupt
             while thread.isAlive():
                 thread.join(1)
 
     except KeyboardInterrupt:
-        print
-        "Keyboard interrupt"
+        print "Keyboard interrupt"
         for thread in waitList:
             if thread.isAlive() and thread.child:
                 try:
-                    print
-                    "killing child pid %d..." % thread.child.pid
+                    print "killing child pid %d..." % thread.child.pid
                     os.kill(thread.child.pid, signal.SIGTERM)
                     t = 2.0  # max wait time in secs
                     while thread.child.poll() < 0:
@@ -781,20 +763,19 @@ def copyAndExecute(cells, copyfiles, execfile, destfile, command, options):
                         else:  # still there, force kill
                             os.kill(thread.child.pid, signal.SIGKILL)
                             time.sleep(0.4)
-                            thread.child.poll()  # final try
+                            thread.child.poll() # final try
                             break
-                except OSError, e:
+                except OSError,e:
                     if e.errno != 3:
                         # errno 3 .."no such process" ... is ok
                         raise
-                        #           we should call join to cleanup threads but it never returns
-                        #           thread.join(5)  --- this never returns after ctrl-c
+#           we should call join to cleanup threads but it never returns                    
+#           thread.join(5)  --- this never returns after ctrl-c
         raise KeyboardInterrupt
-
+    
     return status, output
 
-
-def getInt(str):
+def getInt( str ):
     """
     Convert string to number.  Return None if string is not a number
     """
@@ -804,8 +785,7 @@ def getInt(str):
         return None
     return num
 
-
-def listResults(cells, statusMap, outputMap, listNegatives, regexp):
+def listResults( cells, statusMap, outputMap, listNegatives, regexp):
     """
     list result output from cells.
 
@@ -816,14 +796,13 @@ def listResults(cells, statusMap, outputMap, listNegatives, regexp):
     We print output in "cells" order which is order given in user group
     file and command line cell list.
     """
-    if listNegatives:
+    if listNegatives :
         okCells = []
         for cell in cells:
             if cell in statusMap.keys() and statusMap[cell] == 0:
                 okCells.append(cell)
         if len(okCells) > 0:
-            print
-            "OK: %s" % okCells
+            print "OK: %s" % okCells
 
     compiledRE = None
     if regexp:
@@ -837,47 +816,40 @@ def listResults(cells, statusMap, outputMap, listNegatives, regexp):
                         reCells.append(cell)
                         break
         if len(reCells) > 0:
-            print
-            "%s: %s" % (regexp, reCells)
-
+            print "%s: %s" % (regexp, reCells)
+        
     for cell in cells:
         if cell in outputMap.keys():
             if not listNegatives or statusMap[cell] > 0:
                 output = outputMap[cell]
                 for l in output:
                     if not compiledRE or not compiledRE.match(l.strip()):
-                        print
-                        "%s: %s" % (cell, l.strip())
-
+                        print "%s: %s" % (cell, l.strip())
 
 def listVmstatHeader(headers, maxLenCellName, header1Widths, header2Widths):
     """
     print two vmstat headers aligned according to field widths
     """
-    print
-    "%s %s" % (" ".rjust(maxLenCellName),
-               listVmstatLine(header1Widths, headers[0].split()))
-    print
-    "%s:%s" % (time.strftime('%X').rjust(maxLenCellName),
-               listVmstatLine(header2Widths, headers[1].split()))
+    print "%s %s" % (" ".rjust(maxLenCellName),
+                     listVmstatLine(header1Widths, headers[0].split()))
+    print "%s:%s" %  (time.strftime('%X').rjust(maxLenCellName),
+                       listVmstatLine(header2Widths, headers[1].split()))
 
-
-def listVmstatLine(widths, values):
+def listVmstatLine( widths, values ):
     """
-    return one line of vmstat values right justified in fields of max widths
+    return one line of vmstat values right justified in fields of max widths 
     """
     result = ""
-    i = -1
+    i = -1     
     for v in values:
         i += 1
         result += "%s " % str(v).rjust(widths[i])
-    return result
+    return result 
 
-
-def listVmstatResults(cells, statusMap, outputMap, vmstatOps, count):
+def listVmstatResults( cells, statusMap, outputMap, vmstatOps, count):
     """
     display results for the vmstat option.
-
+    
     header lines are displayed unless suppressed by -n option.
     fields are aligned using the widest value in the output.
     Minimum, Maximum, and Average rows are added if there is more than
@@ -886,13 +858,13 @@ def listVmstatResults(cells, statusMap, outputMap, vmstatOps, count):
     MINIMUM = "Minimum"
     MAXIMUM = "Maximum"
     AVERAGE = "Average"
-
+    
     minvalues = []
     maxvalues = []
-    # approximate field widths for vmstat... these are minimums
+    #approximate field widths for vmstat... these are minimums
     #           procs   memory  swap  io   system  cpu
-    header1Widths = [5, 27, 9, 11, 11, 14]
-    fieldWidths = [2, 2, 6, 6, 6, 6, 4, 4, 5, 5, 5, 5, 2, 2, 2, 2, 2]
+    header1Widths = [5,   27,     9,   11,  11,     14 ]
+    fieldWidths = [2,2, 6,6,6,6,   4,4,  5,5, 5,5,    2,2,2,2,2]
     total = []
 
     # use local time as max name width (it's used in header2)
@@ -909,51 +881,49 @@ def listVmstatResults(cells, statusMap, outputMap, vmstatOps, count):
             vInt = getInt(v)
             if vInt == None:
                 continue
-            if len(minvalues) <= i:
+            if len(minvalues) <= i: 
                 minvalues.insert(i, vInt)
             elif minvalues[i] > vInt:
                 minvalues[i] = vInt
-
+                                 
             if len(maxvalues) <= i:
                 maxvalues.insert(i, vInt)
             elif maxvalues[i] < vInt:
                 maxvalues[i] = vInt
-            if len(total) <= i:
-                total.insert(i, 0)
+            if len(total) <= i :
+                    total.insert(i, 0)
             total[i] += vInt
-            if len(fieldWidths) == i:
+            if len(fieldWidths) == i :
                 fieldWidths.insert(i, len(v))
             elif fieldWidths[i] < len(v):
                 fieldWidths[i] = len(v)
-
-    maxLenCellName = max([maxLenCellName, len(MAXIMUM), len(MINIMUM), len(AVERAGE)])
+                
+    maxLenCellName = max([maxLenCellName, len(MAXIMUM), len(MINIMUM), len(AVERAGE)])            
     # if not -n then print the header each time
     # with -n we only print on first invocation
-    if count == 0 or vmstatOps.find("-n") == -1:
-        listVmstatHeader(outputMap.values()[0], maxLenCellName, header1Widths, fieldWidths)
-
-    # list the output in key order, followed by min, max, and average
+    if count == 0 or vmstatOps.find("-n") == -1 :
+        listVmstatHeader(outputMap.values()[0], maxLenCellName, header1Widths, fieldWidths )
+             
+    # list the output in key order, followed by min, max, and average                   
     for cell in cells:
         if cell in outputMap.keys():
             output = outputMap[cell]
             values = output[-1].split()
-            print
-            "%s:%s" % (cell.rjust(maxLenCellName), listVmstatLine(fieldWidths, values))
+            print "%s:%s" % (cell.rjust(maxLenCellName), listVmstatLine(fieldWidths, values))
             headerNeeded = False
-
+                     
     if outputCount > 1:
-        print
-        "%s:%s" % (MINIMUM.rjust(maxLenCellName), listVmstatLine(fieldWidths, minvalues))
-        print
-        "%s:%s" % (MAXIMUM.rjust(maxLenCellName), listVmstatLine(fieldWidths, maxvalues))
+        print "%s:%s" % (MINIMUM.rjust(maxLenCellName), listVmstatLine(fieldWidths, minvalues))
+        print "%s:%s" % (MAXIMUM.rjust(maxLenCellName), listVmstatLine(fieldWidths, maxvalues))
         avgvalues = []
         for v in total:
-            avgvalues.append(int(round(v / outputCount)))
-        print
-        "%s:%s" % (AVERAGE.rjust(maxLenCellName), listVmstatLine(fieldWidths, avgvalues))
+            avgvalues.append( int(round(v/outputCount)) )
+        print "%s:%s" % (AVERAGE.rjust(maxLenCellName), listVmstatLine(fieldWidths, avgvalues))
 
+                        
 
 def main(argv=None):
+
     """
     Main program.
 
@@ -966,82 +936,82 @@ def main(argv=None):
     Finally it returns 0, 1, or 2 based on results.
     """
     global TIMEOUT
-    global TESTMODE
+    global TESTMODE        
     TESTMODE = ""
     if argv is None:
         argv = sys.argv
     elif argv[0].startswith("test"):
         # tests cannot rely on ssh ports
         TESTMODE = "test"
-
-    usage = "usage: %prog [options] [command]"
+ 
+    usage = "usage: %prog [options] [command]" 
     parser = OptionParser(usage=usage, add_help_option=False,
                           version="version %s" % version)
-    parser.add_option("--batchsize",
+    parser.add_option("--batchsize", 
                       action="store", type="int", dest="maxThds", default=(),
-                      help="limit the number of target cells on which to run the command" + \
-                           " or file copy in parallel")
-    parser.add_option("-c",
+                      help="limit the number of target cells on which to run the command" +\
+                      " or file copy in parallel")
+    parser.add_option("-c", 
                       action="append", type="string", dest="cells",
                       help="comma-separated list of cells")
     parser.add_option("--ctimeout",
-                      action="store", type="float", dest="ctimeout",
+                      action="store", type="float", dest="ctimeout", 
                       help="Maximum time in seconds for initial cell connect")
 
     parser.add_option("-d",
-                      help="destination directory or file",
-                      action="store", type="string", dest="destfile")
+                     help="destination directory or file",
+                     action="store", type="string", dest="destfile")
     parser.add_option("-f",
-                      help="files to be copied",
-                      action="append", type="string", dest="file")
-    parser.add_option("-g",
-                      help="file containing list of cells",
-                      action="store", type="string", dest="groupfile")
+                     help="files to be copied",
+                     action="append", type="string", dest="file")
+    parser.add_option("-g", 
+                     help="file containing list of cells",
+                     action="store", type="string", dest="groupfile")
 
     # help displays the module doc text plus the option help
     def doHelp(option, opt, value, parser):
-        print(__doc__)
+        print( __doc__ )
         parser.print_help()
         sys.exit(0)
 
     parser.add_option("-h", "--help",
-                      help="show help message and exit",
-                      action="callback", callback=doHelp)
-    parser.add_option("--hidestderr",
-                      help="hide stderr for remotely executed commands in ssh",
-                      action="store_true", dest="hideStderr", default=False)
-    parser.add_option("-k",
+                     help="show help message and exit",
+                     action="callback", callback=doHelp)  
+    parser.add_option("--hidestderr", 
+                     help="hide stderr for remotely executed commands in ssh",
+                     action="store_true", dest="hideStderr", default=False)
+    parser.add_option("-k", 
                       action="store_true", dest="pushKey", default=False,
-                      help="push ssh key to cell's authorized_keys file")
+                      help="push ssh key to cell's authorized_keys file")        
     parser.add_option("-l", default="celladmin",
-                      help="user to login as on remote cells (default: celladmin) ",
-                      action="store", type="string", dest="userID")
+                     help="user to login as on remote cells (default: celladmin) ",
+                     action="store", type="string", dest="userID")
     parser.add_option("--maxlines",
-                      action="store", type="int", dest="maxLines", default=100000,
-                      help="limit output lines from a cell when in parallel execution over " + \
-                           "multiple cells (default: 100000)")
-    parser.add_option("-n",
+                     action="store", type="int", dest="maxLines", default=100000,
+                     help="limit output lines from a cell when in parallel execution over " +\
+                     "multiple cells (default: 100000)")
+    parser.add_option("-n", 
                       action="store_true", dest="listNegatives", default=False,
                       help="abbreviate non-error output ")
-    parser.add_option("-r",
-                      help="abbreviate output lines matching a regular expression",
-                      action="store", type="string", dest="regexp")
-    parser.add_option("-s",
-                      help="string of options passed through to ssh",
-                      action="store", type="string", dest="sshOptions")
-    parser.add_option("--scp",
-                      help="string of options passed through to scp if different from sshoptions",
-                      action="store", type="string", dest="scpOptions")
-    parser.add_option("--serial",
+    parser.add_option("-r", 
+                     help="abbreviate output lines matching a regular expression",
+                     action="store", type="string", dest="regexp")
+    parser.add_option("-s", 
+                     help="string of options passed through to ssh",
+                     action="store", type="string", dest="sshOptions")
+    parser.add_option("--scp", 
+                     help="string of options passed through to scp if different from sshoptions",
+                     action="store", type="string", dest="scpOptions")
+    parser.add_option("--serial", 
                       action="store_true", dest="serializeOps", default=False,
                       help="serialize execution over the cells")
-    parser.add_option("--showbanner",
-                      help="show banner of the remote node in ssh",
-                      action="store_true", dest="showBanner", default=False)
-    parser.add_option("-t",
+    parser.add_option("--showbanner", 
+                     help="show banner of the remote node in ssh",
+                     action="store_true", dest="showBanner", default=False)
+    parser.add_option("-t", 
                       action="store_true", dest="list", default=False,
                       help="list target cells ")
-    parser.add_option("--unkey",
+    parser.add_option("--unkey", 
                       action="store_true", dest="dropKey", default=False,
                       help="drop keys from target cells' authorized_keys file")
     parser.add_option("-v", action="count", dest="verbosity",
@@ -1050,78 +1020,57 @@ def main(argv=None):
                       help="vmstat command options",
                       action="store", type="string", dest="vmstatOps")
     parser.add_option("-x",
-                      help="file to be copied and executed",
-                      action="store", type="string", dest="execfile")
+                     help="file to be copied and executed",
+                     action="store", type="string", dest="execfile")
 
     # stop parsing when we hit first arg to allow unquoted commands
-    parser.disable_interspersed_args()
+    parser. disable_interspersed_args() 
     (options, args) = parser.parse_args(argv[1:])
 
     # split options.file if there are list items
     if options.file:
-        options_file = []
-        for item_file in options.file:
-            options_file.extend(item_file.split())
+       options_file=[]
+       for item_file in options.file:
+           options_file.extend(item_file.split())
 
-        options.file = options_file
+       options.file = options_file
 
-    # trim exec file option
+    # trim exec file option  
     if options.execfile:
-        options.execfile = options.execfile.strip()
+       options.execfile=options.execfile.strip()
 
-    if options.verbosity:
-        print
-        'options.cells: %s' % options.cells
-        print
-        'options.ctimeout: %s' % options.ctimeout
-        print
-        'options.destfile: %s' % options.destfile
-        print
-        'options.file: %s' % options.file
-        print
-        'options.group: %s' % options.groupfile
-        print
-        'options.hideStderr: %s' % options.hideStderr
-        print
-        'options.maxLines: %s' % options.maxLines
+    if options.verbosity :
+        print 'options.cells: %s' % options.cells
+        print 'options.ctimeout: %s' % options.ctimeout
+        print 'options.destfile: %s' % options.destfile
+        print 'options.file: %s' % options.file
+        print 'options.group: %s' % options.groupfile
+        print 'options.hideStderr: %s' % options.hideStderr
+        print 'options.maxLines: %s' % options.maxLines
         if options.maxThds is not ():
-            print
-            'options.maxThds: %s' % options.maxThds
-        print
-        'options.listNegatives: %s' % options.listNegatives
-        print
-        'options.pushKey: %s' % options.pushKey
-        print
-        'options.regexp: %s' % options.regexp
-        print
-        'options.sshOptions: %s' % options.sshOptions
-        print
-        'options.showBanner: %s' % options.showBanner
-        print
-        'options.scpOptions: %s' % options.scpOptions
-        print
-        'options.dropKey: %s' % options.dropKey
-        print
-        'options.serializeOps: %s' % options.serializeOps
-        print
-        'options.userID: %s' % options.userID
-        print
-        'options.verbosity %s' % options.verbosity
-        print
-        'options.vmstatOps %s' % options.vmstatOps
-        print
-        'options.execfile: %s' % options.execfile
-        print
-        "argv: %s" % argv
+            print 'options.maxThds: %s' % options.maxThds
+        print 'options.listNegatives: %s' % options.listNegatives
+        print 'options.pushKey: %s' % options.pushKey
+        print 'options.regexp: %s' % options.regexp
+        print 'options.sshOptions: %s' % options.sshOptions
+        print 'options.showBanner: %s' % options.showBanner
+        print 'options.scpOptions: %s' % options.scpOptions
+        print 'options.dropKey: %s' % options.dropKey
+        print 'options.serializeOps: %s' % options.serializeOps
+        print 'options.userID: %s' % options.userID
+        print 'options.verbosity %s' % options.verbosity
+        print 'options.vmstatOps %s' % options.vmstatOps
+        print 'options.execfile: %s' % options.execfile
+        print "argv: %s" % argv
 
     returnValue = 0
     try:
         command = None
-
+       
         if len(args) > 0:
-            command = buildCommand(args, options.verbosity, options.hideStderr)
+            command = buildCommand( args, options.verbosity, options.hideStderr )
 
-        if not command and not (options.list or options.execfile
+        if not command and not (options.list or options.execfile 
                                 or options.file or options.pushKey
                                 or options.dropKey
                                 or options.vmstatOps != None):
@@ -1130,7 +1079,7 @@ def main(argv=None):
             raise UsageError("Cannot specify both command and exec file");
         if options.file and options.execfile:
             raise UsageError("Cannot specify both copy file and exec file");
-
+       
         if (options.hideStderr) and (len(args) == 0):
             raise UsageError("hidestderr(--hi) option is only used when remote command is specified");
         if options.listNegatives and options.regexp:
@@ -1139,7 +1088,7 @@ def main(argv=None):
         # an empty option value is is ok for vmstat
         if options.vmstatOps != None and options.vmstatOps == "":
             options.vmstatOps = " "
-        if options.vmstatOps:
+        if options.vmstatOps :
             if (options.execfile or options.file or command):
                 raise UsageError("Cannot specify vmstat option with copy file, exec file, or command");
             if (options.listNegatives or options.regexp):
@@ -1151,10 +1100,10 @@ def main(argv=None):
             checkKeys(options.verbosity);
         if options.ctimeout is not None:
             if options.ctimeout >= 0.0:
-                TIMEOUT = options.ctimeout
+                TIMEOUT=options.ctimeout
             else:
                 raise UsageError("ctimeout value must be a positive number")
-        clist = buildCellList(options.cells, options.groupfile, options.verbosity)
+        clist = buildCellList( options.cells, options.groupfile, options.verbosity )
 
         batch = False
         if options.maxThds < ():
@@ -1164,35 +1113,33 @@ def main(argv=None):
                 raise UsageError("Cannot specify batchsize less than 1")
             batch = True
 
-        if len(clist) == 0:
+        if len(clist) == 0 :
             raise UsageError("No cells specified.")
 
         if options.execfile:
             checkFile(options.execfile, True, options.verbosity)
         if options.file:
-            for item_file in options.file:
-                checkFile(item_file, False, options.verbosity)
+           for item_file in options.file:
+               checkFile(item_file, False, options.verbosity)
         if options.destfile and not (options.execfile or options.file):
             raise UsageError("Cannot specify destination without copy file or exec file")
         if options.list:
-            print
-            "Target cells: %s" % clist
+            print "Target cells: %s" % clist
 
         # cells are divided into good and bad based on willingness to talk
         goodCells = []
-        badCells = []
+        badCells = []    
         if (command or options.execfile or options.file or
-                options.pushKey or options.dropKey):
+            options.pushKey or options.dropKey):
             # we may have something to do.  test connectivity first..
             goodCells, badCells = testCells(clist, options.verbosity)
-            if options.verbosity and len(goodCells) > 0:
-                print
-                "Success connecting to cells: %s" % goodCells
-            if len(badCells) > 0:
+            if options.verbosity and len(goodCells) > 0 :
+                print "Success connecting to cells: %s" % goodCells
+            if len(badCells) > 0 :
                 returnValue = 1
-                print >> sys.stderr, "Unable to connect to cells: %s" % badCells
+                print >>sys.stderr,"Unable to connect to cells: %s" % badCells
 
-        if len(goodCells) > 0:
+        if len(goodCells) > 0 :
             batchBegin = 0
             sampleCount = 1
             loopCount = 0
@@ -1202,55 +1149,55 @@ def main(argv=None):
                 else:
                     batchEnd = batchBegin + options.maxThds
                 cells = goodCells[batchBegin:batchEnd]
-                if vmstatCount != None:
+                if vmstatCount != None :
                     # For vmstat, do periodic sampling of vmstat and print as we go.
                     # the first time through the loop we retrieve just the boot stats
                     # thereafter we retrieve a delayed sample (sampleCount =2)
                     while True:
-                        statusMap, outputMap = copyAndExecute(cells, None, None, None,
-                                                              command + str(sampleCount), options);
-                        if max(statusMap.values()) > 0:
-                            # error returned  ... display results in usual fashion and exit
-                            listResults(clist, statusMap, outputMap, None, None)
+                        statusMap, outputMap = copyAndExecute( cells, None, None, None,
+                                               command + str(sampleCount), options);
+                        if max( statusMap.values() ) > 0 :
+                            #error returned  ... display results in usual fashion and exit
+                            listResults( clist, statusMap, outputMap, None, None)
                             break
-                        listVmstatResults(clist, statusMap, outputMap, options.vmstatOps,
-                                          loopCount)
+                        listVmstatResults( clist, statusMap, outputMap, options.vmstatOps,
+                                           loopCount)
                         if batch: break
-                        if vmstatCount >= 0:
+                        if vmstatCount >= 0 :                       
                             loopCount += 1
-                            if loopCount >= vmstatCount:
+                            if loopCount >= vmstatCount :
                                 break
                         sampleCount = 2
-                else:
-                    statusMap, outputMap = copyAndExecute(cells, options.file, options.execfile,
-                                                          options.destfile, command, options);
-                    listResults(clist, statusMap, outputMap, options.listNegatives,
-                                options.regexp)
+                else:             
+                    statusMap, outputMap = copyAndExecute( cells, options.file, options.execfile,
+                                                           options.destfile, command, options);
+                    listResults( clist, statusMap, outputMap, options.listNegatives,
+                                 options.regexp )
                 values = statusMap.values() + [returnValue]
-                returnValue = max(values)
+                returnValue = max( values )
                 if batchEnd == len(goodCells):
                     loopCount += 1
                     if batch and vmstatCount is not None and (vmstatCount < 0 or loopCount < vmstatCount):
                         batchBegin = 0
                         sampleCount = 2
                     else:
-                        break
+                        break 
                 else:
                     batchBegin = batchEnd
 
     except UsageError, err:
-        print >> sys.stderr, "Error: %s" % err.msg
+        print >>sys.stderr, "Error: %s" % err.msg
         parser.print_help()
         # parser.error(err.msg) -- doesn't print usage options.
         return 2
 
     except Error, err:
-        print >> sys.stderr, "Error: %s" % err.msg
+        print >>sys.stderr, "Error: %s" % err.msg
         return 2
 
     except IOError, err:
-        print >> sys.stderr, "IOError: [Errno %s] %s" % (err.errno, err.strerror)
-        return 2
+        print >>sys.stderr, "IOError: [Errno %s] %s" % (err.errno,err.strerror)
+        return 2 
 
     except KeyboardInterrupt:
         # sys.exit(1)  does not work after ctrl-c
@@ -1260,25 +1207,25 @@ def main(argv=None):
     return returnValue and 1
 
 
-def testCells(cellList, verbose):
+def testCells(cellList, verbose) :
     """
     Test cells for their ability to talk on their SSH port 22
-
+    
     Builds a list of cells that can connect (good list)
     and a list of bad cells
     """
-
+        
     good = []
     bad = []
 
-    for cell in cellList:
+    for cell in cellList :
         try:
             res = socket.getaddrinfo(cell, PORT, socket.AF_UNSPEC, socket.SOCK_STREAM)
             ipv6 = False
             sockaddr = 0
             for addr in res:
                 if (addr[0] == socket.AF_INET or
-                        (addr[0] == socket.AF_INET6 and socket.has_ipv6)):
+                    (addr[0] == socket.AF_INET6 and socket.has_ipv6)):
                     if addr[0] == socket.AF_INET6:
                         ipv6 = True
                     sockaddr = addr[-1]
@@ -1292,23 +1239,19 @@ def testCells(cellList, verbose):
             else:
                 ts = socket.socket(socket.AF_INET, socket.SOCK_STREAM);
             ts.settimeout(TIMEOUT);
-
+        
             if not TESTMODE:
                 ts.connect(sockaddr)
             good.append(cell)
         except socket.error, e:
-            if verbose: print
-            "socket error: %s" % e
+            if verbose: print "socket error: %s" % e
             bad.append(cell)
         except socket.timeout, e:
-            if verbose: print
-            "socket timeout: %s" % e
+            if verbose: print "socket timeout: %s" % e
             bad.append(cell)
     return good, bad
-
-
+    
 # Main program
 
-if __name__ == "__main__":
+if __name__ == "__main__" :
     sys.exit(main())
-vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
