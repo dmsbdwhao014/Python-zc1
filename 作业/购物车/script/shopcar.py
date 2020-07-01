@@ -24,7 +24,7 @@ while exit_flag is not True:
         p_name = item[1][0]
         p_price = item[1][1]
         print(index,"商品名称:",p_name,"商品价格:",p_price)
-    user_choice = input("[q=quit,c=check]What do you want to buy?:")
+    user_choice = input("[q=quit,c=check]What do you want to buy?:\n")
     if user_choice.isdigit():
         user_choice = int(user_choice)
         if user_choice < len(ProductList):
