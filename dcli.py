@@ -172,9 +172,8 @@ def buildCellList(cells, filename, verbose):
                 line = line.strip();
                 if len(line) > 0 and not line.startswith("#") :
                     celllist.append(line)
-        except IOError, (errno, strerror):
-            raise Error("I/O error(%s) on %s: %s" %
-                        (errno, filename, strerror))
+        except IOError as strerror:
+            raise Error("I/O error(%s) on %s: %s" % (filename, strerror))
         
     if cells :
         for cline in cells:
@@ -261,12 +260,12 @@ def checkKeys( verbose):
     elif os.path.isfile(dsaKeyFile):
         f = open(dsaKeyFile )
         SSHKEY.append( f.read().strip() )
-        if (verbose ): print "DSA KEY: " + SSHKEY[-1]
+        if (verbose ): print("DSA KEY: " + SSHKEY[-1])
         f.close()
     if os.path.isfile(rsaKeyFile):
         f = open(rsaKeyFile )
         SSHKEY.append( f.read().strip() )
-        if (verbose ): print "RSA KEY: " + SSHKEY[-1]
+        if (verbose ): print("RSA KEY: " + SSHKEY[-1])
         f.close()
     if not SSHKEY:
         raise Error("Neither RSA nor DSA keys have been generated for current user.\n"
@@ -384,7 +383,7 @@ def copyAndExecute( cells, copyfiles, execfile, destfile, command, options ) :
             """
             One thread for each WorkThread.start()
             """
-            if verbose : print "...entering thread for %s:" % self.cell
+            if verbose : print("...entering thread for %s:" % self.cell)
             childStatus = 0
             childOutput = [];
             opString = " ";
@@ -945,28 +944,15 @@ def main(argv=None):
         TESTMODE = "test"
  
     usage = "usage: %prog [options] [command]" 
-    parser = OptionParser(usage=usage, add_help_option=False,
-                          version="version %s" % version)
-    parser.add_option("--batchsize", 
-                      action="store", type="int", dest="maxThds", default=(),
+    parser = OptionParser(usage=usage, add_help_option=False,version="version %s" % version)
+    parser.add_option("--batchsize",action="store", type="int", dest="maxThds", default=(),
                       help="limit the number of target cells on which to run the command" +\
                       " or file copy in parallel")
-    parser.add_option("-c", 
-                      action="append", type="string", dest="cells",
-                      help="comma-separated list of cells")
-    parser.add_option("--ctimeout",
-                      action="store", type="float", dest="ctimeout", 
-                      help="Maximum time in seconds for initial cell connect")
-
-    parser.add_option("-d",
-                     help="destination directory or file",
-                     action="store", type="string", dest="destfile")
-    parser.add_option("-f",
-                     help="files to be copied",
-                     action="append", type="string", dest="file")
-    parser.add_option("-g", 
-                     help="file containing list of cells",
-                     action="store", type="string", dest="groupfile")
+    parser.add_option("-c", action="append", type="string", dest="cells",help="comma-separated list of cells")
+    parser.add_option("--ctimeout",action="store", type="float", dest="ctimeout", help="Maximum time in seconds for initial cell connect")
+    parser.add_option("-d",help="destination directory or file",action="store", type="string", dest="destfile")
+    parser.add_option("-f",help="files to be copied",action="append", type="string", dest="file")
+    parser.add_option("-g", help="file containing list of cells",action="store", type="string", dest="groupfile")
 
     # help displays the module doc text plus the option help
     def doHelp(option, opt, value, parser):
@@ -974,54 +960,24 @@ def main(argv=None):
         parser.print_help()
         sys.exit(0)
 
-    parser.add_option("-h", "--help",
-                     help="show help message and exit",
-                     action="callback", callback=doHelp)  
-    parser.add_option("--hidestderr", 
-                     help="hide stderr for remotely executed commands in ssh",
-                     action="store_true", dest="hideStderr", default=False)
-    parser.add_option("-k", 
-                      action="store_true", dest="pushKey", default=False,
-                      help="push ssh key to cell's authorized_keys file")        
-    parser.add_option("-l", default="celladmin",
-                     help="user to login as on remote cells (default: celladmin) ",
-                     action="store", type="string", dest="userID")
-    parser.add_option("--maxlines",
-                     action="store", type="int", dest="maxLines", default=100000,
+    parser.add_option("-h", "--help",help="show help message and exit",action="callback", callback=doHelp)
+    parser.add_option("--hidestderr",help="hide stderr for remotely executed commands in ssh",action="store_true", dest="hideStderr", default=False)
+    parser.add_option("-k", action="store_true", dest="pushKey", default=False,help="push ssh key to cell's authorized_keys file")
+    parser.add_option("-l", default="celladmin",help="user to login as on remote cells (default: celladmin) ",action="store", type="string", dest="userID")
+    parser.add_option("--maxlines",action="store", type="int", dest="maxLines", default=100000,
                      help="limit output lines from a cell when in parallel execution over " +\
                      "multiple cells (default: 100000)")
-    parser.add_option("-n", 
-                      action="store_true", dest="listNegatives", default=False,
-                      help="abbreviate non-error output ")
-    parser.add_option("-r", 
-                     help="abbreviate output lines matching a regular expression",
-                     action="store", type="string", dest="regexp")
-    parser.add_option("-s", 
-                     help="string of options passed through to ssh",
-                     action="store", type="string", dest="sshOptions")
-    parser.add_option("--scp", 
-                     help="string of options passed through to scp if different from sshoptions",
-                     action="store", type="string", dest="scpOptions")
-    parser.add_option("--serial", 
-                      action="store_true", dest="serializeOps", default=False,
-                      help="serialize execution over the cells")
-    parser.add_option("--showbanner", 
-                     help="show banner of the remote node in ssh",
-                     action="store_true", dest="showBanner", default=False)
-    parser.add_option("-t", 
-                      action="store_true", dest="list", default=False,
-                      help="list target cells ")
-    parser.add_option("--unkey", 
-                      action="store_true", dest="dropKey", default=False,
-                      help="drop keys from target cells' authorized_keys file")
-    parser.add_option("-v", action="count", dest="verbosity",
-                      help="print extra messages to stdout")
-    parser.add_option("--vmstat",
-                      help="vmstat command options",
-                      action="store", type="string", dest="vmstatOps")
-    parser.add_option("-x",
-                     help="file to be copied and executed",
-                     action="store", type="string", dest="execfile")
+    parser.add_option("-n", action="store_true", dest="listNegatives", default=False,help="abbreviate non-error output ")
+    parser.add_option("-r", help="abbreviate output lines matching a regular expression",action="store", type="string", dest="regexp")
+    parser.add_option("-s", help="string of options passed through to ssh",action="store", type="string", dest="sshOptions")
+    parser.add_option("--scp", help="string of options passed through to scp if different from sshoptions",action="store", type="string", dest="scpOptions")
+    parser.add_option("--serial", action="store_true", dest="serializeOps", default=False,help="serialize execution over the cells")
+    parser.add_option("--showbanner", help="show banner of the remote node in ssh",action="store_true", dest="showBanner", default=False)
+    parser.add_option("-t", action="store_true", dest="list", default=False,help="list target cells ")
+    parser.add_option("--unkey", action="store_true", dest="dropKey", default=False,help="drop keys from target cells' authorized_keys file")
+    parser.add_option("-v", action="count", dest="verbosity",help="print extra messages to stdout")
+    parser.add_option("--vmstat",help="vmstat command options",action="store", type="string", dest="vmstatOps")
+    parser.add_option("-x",help="file to be copied and executed",action="store", type="string", dest="execfile")
 
     # stop parsing when we hit first arg to allow unquoted commands
     parser. disable_interspersed_args() 
@@ -1154,8 +1110,7 @@ def main(argv=None):
                     # the first time through the loop we retrieve just the boot stats
                     # thereafter we retrieve a delayed sample (sampleCount =2)
                     while True:
-                        statusMap, outputMap = copyAndExecute( cells, None, None, None,
-                                               command + str(sampleCount), options);
+                        statusMap, outputMap = copyAndExecute( cells, None, None, None, command + str(sampleCount), options);
                         if max( statusMap.values() ) > 0 :
                             #error returned  ... display results in usual fashion and exit
                             listResults( clist, statusMap, outputMap, None, None)
@@ -1169,10 +1124,8 @@ def main(argv=None):
                                 break
                         sampleCount = 2
                 else:             
-                    statusMap, outputMap = copyAndExecute( cells, options.file, options.execfile,
-                                                           options.destfile, command, options);
-                    listResults( clist, statusMap, outputMap, options.listNegatives,
-                                 options.regexp )
+                    statusMap, outputMap = copyAndExecute( cells, options.file, options.execfile, options.destfile, command, options);
+                    listResults( clist, statusMap, outputMap, options.listNegatives, options.regexp )
                 values = statusMap.values() + [returnValue]
                 returnValue = max( values )
                 if batchEnd == len(goodCells):
@@ -1214,7 +1167,7 @@ def testCells(cellList, verbose) :
     Builds a list of cells that can connect (good list)
     and a list of bad cells
     """
-        
+
     good = []
     bad = []
 

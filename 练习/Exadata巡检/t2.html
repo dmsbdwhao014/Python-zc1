@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+//点击a标签，轮流显示和隐藏
+<div id="timo" style="background-color:red;height:50px;width:50px;"></div>
+<a href="javascript:void(0);" id="lol">点击这里</a>
+
+<script>
+
+$(function(){
+　　//方法一、
+　　$('#lol').click(function(){
+　　　　if($('#timo').is(':hidden')){//如果当前隐藏
+　　　　　　$('#timo').show();//那么就显示div
+　　　　}else{//否则
+　　　　　　$('#timo').hide();//就隐藏div
+　　　　}
+　　});
+
+});
+
+</script>
+</body>
+</html>

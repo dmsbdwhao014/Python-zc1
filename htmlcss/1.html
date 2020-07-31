@@ -1,0 +1,707 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ORACLE_CLUSTER version="1001" timestamp="12-07-2019 16:06:22">
+    <PAGE0>
+        <RACKCOUNT>3</RACKCOUNT>
+        <RACKS>
+            <RACK ID="1">
+                <RACK_SERIAL>AK00075920</RACK_SERIAL>
+                <MACHINETYPE>36</MACHINETYPE>
+                <MACHINETYPES>X3-2 Half Rack HC 3TB</MACHINETYPES>
+                <MACHINEUSIZE>42</MACHINEUSIZE>
+                <ITEMS>29</ITEMS>
+                <ITEM ID="1">
+                    <TYPE>ib</TYPE>
+                    <ADMINNAME>bh01sw-ibs0</ADMINNAME>
+                    <ADMINIP>192.168.36.39</ADMINIP>
+                    <ULOCATION>1</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="2">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh01cel01</ADMINNAME>
+                    <ADMINIP>192.168.36.20</ADMINIP>
+                    <ILOMNAME>bh01cel01-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.31</ILOMIP>
+                    <ULOCATION>2</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="3">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh01cel02</ADMINNAME>
+                    <ADMINIP>192.168.36.21</ADMINIP>
+                    <ILOMNAME>bh01cel02-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.32</ILOMIP>
+                    <ULOCATION>4</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="4">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh01cel03</ADMINNAME>
+                    <ADMINIP>192.168.36.22</ADMINIP>
+                    <ILOMNAME>bh01cel03-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.33</ILOMIP>
+                    <ULOCATION>6</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="5">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh01cel04</ADMINNAME>
+                    <ADMINIP>192.168.36.23</ADMINIP>
+                    <ILOMNAME>bh01cel04-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.34</ILOMIP>
+                    <ULOCATION>8</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="6">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh01cel05</ADMINNAME>
+                    <ADMINIP>192.168.36.24</ADMINIP>
+                    <ILOMNAME>bh01cel05-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.35</ILOMIP>
+                    <ULOCATION>10</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="7">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh01cel06</ADMINNAME>
+                    <ADMINIP>192.168.36.25</ADMINIP>
+                    <ILOMNAME>bh01cel06-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.36</ILOMIP>
+                    <ULOCATION>12</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="8">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh01cel07</ADMINNAME>
+                    <ADMINIP>192.168.36.26</ADMINIP>
+                    <ILOMNAME>bh01cel07-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.37</ILOMIP>
+                    <ULOCATION>14</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="9">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh01db01</ADMINNAME>
+                    <ADMINIP>192.168.36.16</ADMINIP>
+                    <ILOMNAME>bh01db01-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.27</ILOMIP>
+                    <CLIENTNAME>bh0101</CLIENTNAME>
+                    <CLIENTIP>192.168.35.16</CLIENTIP>
+                    <ULOCATION>16</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="10">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh01db02</ADMINNAME>
+                    <ADMINIP>192.168.36.17</ADMINIP>
+                    <ILOMNAME>bh01db02-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.28</ILOMIP>
+                    <CLIENTNAME>bh0102</CLIENTNAME>
+                    <CLIENTIP>192.168.35.17</CLIENTIP>
+                    <ULOCATION>17</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="11">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh01db03</ADMINNAME>
+                    <ADMINIP>192.168.36.18</ADMINIP>
+                    <ILOMNAME>bh01db03-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.29</ILOMIP>
+                    <CLIENTNAME>bh0103</CLIENTNAME>
+                    <CLIENTIP>192.168.35.18</CLIENTIP>
+                    <ULOCATION>18</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="12">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh01db04</ADMINNAME>
+                    <ADMINIP>192.168.36.19</ADMINIP>
+                    <ILOMNAME>bh01db04-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.30</ILOMIP>
+                    <CLIENTNAME>bh0104</CLIENTNAME>
+                    <CLIENTIP>192.168.35.19</CLIENTIP>
+                    <ULOCATION>19</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="13">
+                    <TYPE>ib</TYPE>
+                    <ADMINNAME>bh01sw-iba0</ADMINNAME>
+                    <ADMINIP>192.168.36.40</ADMINIP>
+                    <ULOCATION>20</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="14">
+                    <TYPE>cisco</TYPE>
+                    <ADMINNAME>bh01sw0</ADMINNAME>
+                    <ADMINIP>192.168.36.38</ADMINIP>
+                    <ULOCATION>21</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="15">
+                    <TYPE>ib</TYPE>
+                    <ADMINNAME>bh01sw-ibb0</ADMINNAME>
+                    <ADMINIP>192.168.36.41</ADMINIP>
+                    <ULOCATION>22</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="16">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh01db05</ADMINNAME>
+                    <ADMINIP>192.168.36.115</ADMINIP>
+                    <ILOMNAME>bh01db05-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.128</ILOMIP>
+                    <CLIENTNAME>bh0105</CLIENTNAME>
+                    <CLIENTIP>192.168.35.4</CLIENTIP>
+                    <ULOCATION>23</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="17">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh01db06</ADMINNAME>
+                    <ADMINIP>192.168.36.116</ADMINIP>
+                    <ILOMNAME>bh01db06-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.129</ILOMIP>
+                    <CLIENTNAME>bh0106</CLIENTNAME>
+                    <CLIENTIP>192.168.35.5</CLIENTIP>
+                    <ULOCATION>24</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="18">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh01db07</ADMINNAME>
+                    <ADMINIP>192.168.36.117</ADMINIP>
+                    <ILOMNAME>bh01db07-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.130</ILOMIP>
+                    <CLIENTNAME>bh0107</CLIENTNAME>
+                    <CLIENTIP>192.168.35.6</CLIENTIP>
+                    <ULOCATION>25</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="19">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh01cel08</ADMINNAME>
+                    <ADMINIP>192.168.36.118</ADMINIP>
+                    <ILOMNAME>bh01cel08-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.131</ILOMIP>
+                    <ULOCATION>26</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="20">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh01cel09</ADMINNAME>
+                    <ADMINIP>192.168.36.119</ADMINIP>
+                    <ILOMNAME>bh01cel09-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.132</ILOMIP>
+                    <ULOCATION>28</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="21">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh01cel10</ADMINNAME>
+                    <ADMINIP>192.168.36.141</ADMINIP>
+                    <ILOMNAME>bh01cel10-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.133</ILOMIP>
+                    <ULOCATION>30</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="22">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME/>
+                    <ADMINIP/>
+                    <ILOMNAME/>
+                    <ILOMIP/>
+                    <ULOCATION>31</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="23">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME/>
+                    <ADMINIP/>
+                    <ILOMNAME/>
+                    <ILOMIP/>
+                    <ULOCATION>33</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="24">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME/>
+                    <ADMINIP/>
+                    <ILOMNAME/>
+                    <ILOMIP/>
+                    <ULOCATION>35</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="25">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME/>
+                    <ADMINIP/>
+                    <ILOMNAME/>
+                    <ILOMIP/>
+                    <ULOCATION>37</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="26">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME/>
+                    <ADMINIP/>
+                    <ILOMNAME/>
+                    <ILOMIP/>
+                    <ULOCATION>39</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="27">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME/>
+                    <ADMINIP/>
+                    <ILOMNAME/>
+                    <ILOMIP/>
+                    <ULOCATION>41</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="28">
+                    <TYPE>pdu</TYPE>
+                    <ADMINNAME>bh01sw-pdua0</ADMINNAME>
+                    <ADMINIP>192.168.36.42</ADMINIP>
+                    <ULOCATION>0</ULOCATION>
+                    <UHEIGHT>0</UHEIGHT>
+                </ITEM>
+                <ITEM ID="29">
+                    <TYPE>pdu</TYPE>
+                    <ADMINNAME>bh01sw-pdub0</ADMINNAME>
+                    <ADMINIP>192.168.36.43</ADMINIP>
+                    <ULOCATION>0</ULOCATION>
+                    <UHEIGHT>0</UHEIGHT>
+                </ITEM>
+            </RACK>
+            <RACK ID="2">
+                <RACK_SERIAL>AK00157114</RACK_SERIAL>
+                <MACHINETYPE>38</MACHINETYPE>
+                <MACHINETYPES>X3-2 Quarter Rack HC 3TB</MACHINETYPES>
+                <MACHINEUSIZE>42</MACHINEUSIZE>
+                <ITEMS>29</ITEMS>
+                <ITEM ID="1">
+                    <TYPE>ib</TYPE>
+                    <ADMINNAME/>
+                    <ADMINIP/>
+                    <ULOCATION>1</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="2">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh02cel01</ADMINNAME>
+                    <ADMINIP>192.168.36.46</ADMINIP>
+                    <ILOMNAME>bh02cel01-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.51</ILOMIP>
+                    <ULOCATION>2</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="3">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh02cel02</ADMINNAME>
+                    <ADMINIP>192.168.36.47</ADMINIP>
+                    <ILOMNAME>bh02cel02-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.52</ILOMIP>
+                    <ULOCATION>4</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="4">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh02cel03</ADMINNAME>
+                    <ADMINIP>192.168.36.48</ADMINIP>
+                    <ILOMNAME>bh02cel03-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.53</ILOMIP>
+                    <ULOCATION>6</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="5">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh02cel04</ADMINNAME>
+                    <ADMINIP>192.168.36.63</ADMINIP>
+                    <ILOMNAME>bh02cel04-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.67</ILOMIP>
+                    <ULOCATION>8</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="6">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh02cel05</ADMINNAME>
+                    <ADMINIP>192.168.36.64</ADMINIP>
+                    <ILOMNAME>bh02cel05-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.68</ILOMIP>
+                    <ULOCATION>10</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="7">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh02cel06</ADMINNAME>
+                    <ADMINIP>192.168.36.65</ADMINIP>
+                    <ILOMNAME>bh02cel06-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.69</ILOMIP>
+                    <ULOCATION>12</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="8">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh02cel07</ADMINNAME>
+                    <ADMINIP>192.168.36.66</ADMINIP>
+                    <ILOMNAME>bh02cel07-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.70</ILOMIP>
+                    <ULOCATION>14</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="9">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh02db01</ADMINNAME>
+                    <ADMINIP>192.168.36.44</ADMINIP>
+                    <ILOMNAME>bh02db01-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.49</ILOMIP>
+                    <CLIENTNAME>bh0201</CLIENTNAME>
+                    <CLIENTIP>192.168.35.27</CLIENTIP>
+                    <ULOCATION>16</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="10">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh02db02</ADMINNAME>
+                    <ADMINIP>192.168.36.45</ADMINIP>
+                    <ILOMNAME>bh02db02-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.50</ILOMIP>
+                    <CLIENTNAME>bh0202</CLIENTNAME>
+                    <CLIENTIP>192.168.35.28</CLIENTIP>
+                    <ULOCATION>17</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="11">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh02db03</ADMINNAME>
+                    <ADMINIP>192.168.36.59</ADMINIP>
+                    <ILOMNAME>bh02db03-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.61</ILOMIP>
+                    <CLIENTNAME>bh0203</CLIENTNAME>
+                    <CLIENTIP>192.168.35.31</CLIENTIP>
+                    <ULOCATION>18</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="12">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh02db04</ADMINNAME>
+                    <ADMINIP>192.168.36.60</ADMINIP>
+                    <ILOMNAME>bh02db04-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.62</ILOMIP>
+                    <CLIENTNAME>bh0204</CLIENTNAME>
+                    <CLIENTIP>192.168.35.32</CLIENTIP>
+                    <ULOCATION>19</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="13">
+                    <TYPE>ib</TYPE>
+                    <ADMINNAME>bh02ibsw1</ADMINNAME>
+                    <ADMINIP>192.168.36.54</ADMINIP>
+                    <ULOCATION>20</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="14">
+                    <TYPE>cisco</TYPE>
+                    <ADMINNAME>bh02mgtsw</ADMINNAME>
+                    <ADMINIP>192.168.36.56</ADMINIP>
+                    <ULOCATION>21</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="15">
+                    <TYPE>ib</TYPE>
+                    <ADMINNAME>bh02ibsw2</ADMINNAME>
+                    <ADMINIP>192.168.36.55</ADMINIP>
+                    <ULOCATION>22</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="16">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh02db05</ADMINNAME>
+                    <ADMINIP>192.168.36.142</ADMINIP>
+                    <ILOMNAME>bh02db05-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.134</ILOMIP>
+                    <CLIENTNAME>bh0205</CLIENTNAME>
+                    <CLIENTIP>192.168.35.7</CLIENTIP>
+                    <ULOCATION>23</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="17">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh02db06</ADMINNAME>
+                    <ADMINIP>192.168.36.143</ADMINIP>
+                    <ILOMNAME>bh02db06-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.135</ILOMIP>
+                    <CLIENTNAME>bh0206</CLIENTNAME>
+                    <CLIENTIP>192.168.35.8</CLIENTIP>
+                    <ULOCATION>24</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="18">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh02db07</ADMINNAME>
+                    <ADMINIP>192.168.36.144</ADMINIP>
+                    <ILOMNAME>bh02db07-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.136</ILOMIP>
+                    <CLIENTNAME>bh0207</CLIENTNAME>
+                    <CLIENTIP>192.168.35.9</CLIENTIP>
+                    <ULOCATION>25</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="19">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh02cel08</ADMINNAME>
+                    <ADMINIP>192.168.36.145</ADMINIP>
+                    <ILOMNAME>bh02cel08-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.137</ILOMIP>
+                    <ULOCATION>26</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="20">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh02cel09</ADMINNAME>
+                    <ADMINIP>192.168.36.125</ADMINIP>
+                    <ILOMNAME>bh02cel09-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.138</ILOMIP>
+                    <ULOCATION>28</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="21">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh02cel10</ADMINNAME>
+                    <ADMINIP>192.168.36.126</ADMINIP>
+                    <ILOMNAME>bh02cel10-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.139</ILOMIP>
+                    <ULOCATION>30</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="22">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh02cel11</ADMINNAME>
+                    <ADMINIP>192.168.36.127</ADMINIP>
+                    <ILOMNAME>bh02cel11-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.140</ILOMIP>
+                    <ULOCATION>32</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="23">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME/>
+                    <ADMINIP/>
+                    <ILOMNAME/>
+                    <ILOMIP/>
+                    <ULOCATION>34</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="24">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME/>
+                    <ADMINIP/>
+                    <ILOMNAME/>
+                    <ILOMIP/>
+                    <ULOCATION>35</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="25">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME/>
+                    <ADMINIP/>
+                    <ILOMNAME/>
+                    <ILOMIP/>
+                    <ULOCATION>37</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="26">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME/>
+                    <ADMINIP/>
+                    <ILOMNAME/>
+                    <ILOMIP/>
+                    <ULOCATION>39</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="27">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME/>
+                    <ADMINIP/>
+                    <ILOMNAME/>
+                    <ILOMIP/>
+                    <ULOCATION>41</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="28">
+                    <TYPE>pdu</TYPE>
+                    <ADMINNAME>bh02sw-pdua0</ADMINNAME>
+                    <ADMINIP>192.168.36.57</ADMINIP>
+                    <ULOCATION>0</ULOCATION>
+                    <UHEIGHT>0</UHEIGHT>
+                </ITEM>
+                <ITEM ID="29">
+                    <TYPE>pdu</TYPE>
+                    <ADMINNAME>bh02sw-pdub0</ADMINNAME>
+                    <ADMINIP>192.168.36.58</ADMINIP>
+                    <ULOCATION>0</ULOCATION>
+                    <UHEIGHT>0</UHEIGHT>
+                </ITEM>
+            </RACK>
+            <RACK ID="3">
+                <RACK_SERIAL>AK00429450</RACK_SERIAL>
+                <MACHINETYPE>941</MACHINETYPE>
+                <MACHINETYPES>X7-2 Elastic Rack HC 10TB</MACHINETYPES>
+                <MACHINEUSIZE>42</MACHINEUSIZE>
+                <ITEMS>17</ITEMS>
+                <ITEM ID="1">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh03celadm01</ADMINNAME>
+                    <DOMAIN>gdsai.com</DOMAIN>
+                    <ADMINIP>192.168.36.150</ADMINIP>
+                    <ILOMNAME>bh03celadm01-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.162</ILOMIP>
+                    <ULOCATION>2</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="2">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh03celadm02</ADMINNAME>
+                    <DOMAIN>gdsai.com</DOMAIN>
+                    <ADMINIP>192.168.36.151</ADMINIP>
+                    <ILOMNAME>bh03celadm02-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.163</ILOMIP>
+                    <ULOCATION>4</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="3">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh03celadm03</ADMINNAME>
+                    <DOMAIN>gdsai.com</DOMAIN>
+                    <ADMINIP>192.168.36.152</ADMINIP>
+                    <ILOMNAME>bh03celadm03-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.164</ILOMIP>
+                    <ULOCATION>6</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="4">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh03celadm04</ADMINNAME>
+                    <DOMAIN>gdsai.com</DOMAIN>
+                    <ADMINIP>192.168.36.153</ADMINIP>
+                    <ILOMNAME>bh03celadm04-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.165</ILOMIP>
+                    <ULOCATION>8</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="5">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh03celadm05</ADMINNAME>
+                    <DOMAIN>gdsai.com</DOMAIN>
+                    <ADMINIP>192.168.36.154</ADMINIP>
+                    <ILOMNAME>bh03celadm05-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.166</ILOMIP>
+                    <ULOCATION>10</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="6">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh03celadm06</ADMINNAME>
+                    <DOMAIN>gdsai.com</DOMAIN>
+                    <ADMINIP>192.168.36.155</ADMINIP>
+                    <ILOMNAME>bh03celadm06-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.167</ILOMIP>
+                    <ULOCATION>12</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="7">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh03celadm07</ADMINNAME>
+                    <DOMAIN>gdsai.com</DOMAIN>
+                    <ADMINIP>192.168.36.156</ADMINIP>
+                    <ILOMNAME>bh03celadm07-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.168</ILOMIP>
+                    <ULOCATION>14</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+                <ITEM ID="8">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh03dbadm01</ADMINNAME>
+                    <DOMAIN>gdsai.com</DOMAIN>
+                    <ADMINIP>192.168.36.146</ADMINIP>
+                    <ILOMNAME>bh03dbadm01-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.158</ILOMIP>
+                    <CLIENTNAME>bh03db01</CLIENTNAME>
+                    <CLIENTIP>192.168.35.39</CLIENTIP>
+                    <ULOCATION>16</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="9">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh03dbadm02</ADMINNAME>
+                    <DOMAIN>gdsai.com</DOMAIN>
+                    <ADMINIP>192.168.36.147</ADMINIP>
+                    <ILOMNAME>bh03dbadm02-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.159</ILOMIP>
+                    <CLIENTNAME>bh03db02</CLIENTNAME>
+                    <CLIENTIP>192.168.35.40</CLIENTIP>
+                    <ULOCATION>17</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="10">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh03dbadm03</ADMINNAME>
+                    <DOMAIN>gdsai.com</DOMAIN>
+                    <ADMINIP>192.168.36.148</ADMINIP>
+                    <ILOMNAME>bh03dbadm03-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.160</ILOMIP>
+                    <CLIENTNAME>bh03db03</CLIENTNAME>
+                    <CLIENTIP>192.168.35.41</CLIENTIP>
+                    <ULOCATION>18</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="11">
+                    <TYPE>computenode</TYPE>
+                    <ADMINNAME>bh03dbadm04</ADMINNAME>
+                    <DOMAIN>gdsai.com</DOMAIN>
+                    <ADMINIP>192.168.36.149</ADMINIP>
+                    <ILOMNAME>bh03dbadm04-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.161</ILOMIP>
+                    <CLIENTNAME>bh03db04</CLIENTNAME>
+                    <CLIENTIP>192.168.35.42</CLIENTIP>
+                    <ULOCATION>19</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="12">
+                    <TYPE>ib</TYPE>
+                    <ADMINNAME>bh03sw-iba0</ADMINNAME>
+                    <DOMAIN>gdsai.com</DOMAIN>
+                    <ADMINIP>192.168.36.171</ADMINIP>
+                    <ULOCATION>20</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="13">
+                    <TYPE>cisco</TYPE>
+                    <ADMINNAME>bh03sw-adm0</ADMINNAME>
+                    <DOMAIN>gdsai.com</DOMAIN>
+                    <ADMINIP>192.168.36.170</ADMINIP>
+                    <ULOCATION>21</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="14">
+                    <TYPE>ib</TYPE>
+                    <ADMINNAME>bh03sw-ibb0</ADMINNAME>
+                    <DOMAIN>gdsai.com</DOMAIN>
+                    <ADMINIP>192.168.36.172</ADMINIP>
+                    <ULOCATION>22</ULOCATION>
+                    <UHEIGHT>1</UHEIGHT>
+                </ITEM>
+                <ITEM ID="15">
+                    <TYPE>cellnode</TYPE>
+                    <ADMINNAME>bh03celadm08</ADMINNAME>
+                    <DOMAIN>gdsai.com</DOMAIN>
+                    <ADMINIP>192.168.36.157</ADMINIP>
+                    <ILOMNAME>bh03celadm08-ilom</ILOMNAME>
+                    <ILOMIP>192.168.36.169</ILOMIP>
+                    <ULOCATION>27</ULOCATION>
+                    <UHEIGHT>2</UHEIGHT>
+                </ITEM>
+            </RACK>
+        </RACKS>
+    </PAGE0>
+</ORACLE_CLUSTER>

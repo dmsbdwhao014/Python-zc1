@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8" />
+<head>
+    <title>Exadata 巡检</title>
+    <style type="text/css">
+        <!--
+            body{
+                background-color:#ebf5ff;
+                margin:0px;
+                padding:4px;
+                text-align:center;
+            }
+            .datalist{
+                color:#0046a6;
+                background-color:#d2e8ff;
+                font-family:Console;
+                border:1px solid #007eff;
+                border-collapse:collapse;
+            }
+            .datalist caption{
+                font-size:18px;
+                font-weight:bold;
+                margin : 10px;
+                text-align:left;
+            }
+            .datalist th{
+                color:#003e7e;
+                background-color:#7bb3ff;
+                padding:10px;
+                padding-top:5px;
+                padding-bottom:5px;
+            }
+            .datalist th,.datalist td{
+                border:1px solid #429fff;
+                text-align:center;
+            }
+
+            .datalist td{
+                padding-left:10px;
+                padding-right:10px;
+            }
+
+            p{
+                text-align:left;
+                font-family:Console;
+                font-size:25px;
+                color:red;
+                margin-top:10px;
+                margin-bottom:5px;
+                font-weight:bold;
+            }
+
+            .monlist caption{
+                text-align:left;
+            }
+
+        -->
+    </style>
+</head>
+<body>
+<!-- 这里将查询到的结果使用table来显示 -->
+
+<p>DB Server:</p>
+<table summary="select data from oracle" class="datalist">
+    <caption>监控数据库表空间使用情况</caption>
+    <tr>
+    {% for etl in emp_title_list %}
+        <th>{{ etl }}</th>
+     {% endfor %}
+    </tr>
+
+    {% for row in results %}
+    <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}</td>
+        <td>{{ row[2] }}</td>
+        <td>{{ row[3] }}</td>
+        <td>{{ row[4] }}</td>
+        <td>{{ row[5] }}</td>
+        <td>{{ row[6] }}</td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+</body>
+</html>

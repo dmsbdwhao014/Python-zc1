@@ -17,12 +17,12 @@ class Create:
             )
         open_sql = "alter pluggable database {pdb} open".format(pdb=self.PDB_NAME)
         try:
-            with  ConnectDB.cursor() as db_cursor:
+            with  ConnectDB.get_connect() as db_cursor:
                 db_cursor.execute(create_sql)
                 db_cursor.execute(open_sql)
                 return True
         except cx_Oracle.DatabaseError as e:
-            return False
+            return e
 
     def CreateProfile(self, pdb_name):
         self.PDB_NAME = pdb_name
@@ -34,7 +34,7 @@ class Create:
                 db_cursor.execute(create_sql)
                 return True
         except cx_Oracle.DatabaseError as e:
-            return False
+            return e
 
     def CreateTBS(self, pdb_name, user_name):
         self.PDB_NAME = pdb_name
@@ -50,7 +50,7 @@ class Create:
                 db_cursor.execute(create_sql)
                 return tbs
         except cx_Oracle.DatabaseError as e:
-            return False
+            return e
 
     def CreateUser(self, pdb_name, user_name):
         self.PDB_NAME = pdb_name
@@ -68,4 +68,4 @@ class Create:
                 db_cursor.execute(grant_sql)
                 return True
         except cx_Oracle.DatabaseError as e:
-            return False
+            return e
