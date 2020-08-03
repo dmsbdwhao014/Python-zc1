@@ -1,24 +1,17 @@
-#!/usr/bin/env python
 
-import paramiko
+# encoding=utf-8
+
+
+import datetime
+import threading
 import os
 import sys
-import socket
-from optparse import OptionParser
-import time
-import stat
-import re
-import platform
-import threading
-import signal
-import glob
 import tempfile
 import argparse
-
-if sys.version_info < (2, 4):
-    import popen2
-else:
-    from subprocess import Popen, PIPE
+import paramiko
+import stat
+import socket
+import glob
 
 # version
 version = "1"
@@ -65,12 +58,10 @@ def buildIPList(iplist, filename, verbose):
 
     if iplist:
         for ipline in iplist:
-            ipSplit = ipline.split(",")
-            for ip in ipSplit:
-                iplist.append(ip.strip())
+            iplist1.append(ipline.strip())
 
     uniqueIPList = []
-    for c in iplist:
+    for c in iplist1:
         if c not in uniqueIPList:
             uniqueIPList.append(c)
     return uniqueIPList
@@ -152,46 +143,21 @@ def testIPs(ipaddress, ipfile, verbose):
             bad.append(ip)
     return good, bad
 
-
-def buildCommand(args, verbose, hideStderr):
-    command = "("
-    if args:
-        for word in args:
-            command += " " + word
-    if hideStderr:
-        command += ") 2>/dev/null"
-    else:
-        command += ") 2>&1"
-    return command
-
-
 def main(argv=None):
-    global TIMEOUT
-    global TESTMODE
-    TESTMODE = ""
-    if argv is None:
-        argv = sys.argv
-    elif argv[0].startswith("test"):
-        TESTMODE = "test"
-
-    # usage = "usage: %prog [options] [command]"
     parser = argparse.ArgumentParser(description='安装Oracle客户端脚本')
-    parser.add_argument('-V', '--version', help="版本信息", action='version', version='Vserion 1')
+    parser.add_argument('-V', '--version', help="版本信息", action='version', version=version)
     parser.add_argument("-i", '--ip', help="需要安装客户端的IP地址", nargs='*', metavar="ip", dest="ipaddress")
     parser.add_argument("-g", "--group", help="包含IP列表的文件", action="store", metavar="file", type=str, dest="ipfile")
     parser.add_argument("-l", "--user", default="oracle", help="登陆到远程使用的用户", metavar="user", action="store",
                         dest="userid")
     parser.add_argument('-p', '--password', action="store", help='登陆远程的用户密码', metavar="passwd", dest='password')
     parser.add_argument("-v", "--verbose", action="count", dest="verbosity")
-    parser.add_argument('-b', "--batchsize", action="store", type=int, default=(), help="并行安装", dest="maxThds")
     parser.add_argument('-I', "--install", action="store_true", help="执行安装", dest="install")
     parser.add_argument('-f', '--file', action="store", default='/home/oracle/oracle.tar.gz', help='客户端文件位置',
                         metavar="file", dest='clientfile')
     parser.parse_intermixed_args()
     args = parser.parse_args()
     print("args: ", args)
-    if args.ipaddress:
-        print("args.ipaddress: ", args.ipaddress, ",count: ", len(args.ipaddress))
 
     if args.verbosity:
         print("argv: %s" % argv)
@@ -208,54 +174,31 @@ def main(argv=None):
             checkFile(args.ipfile, False, args.verbosity)
 
         if args.ipaddress or args.ipfile:
+
+            iplist = buildIPList(args.ipaddress, args.ipfile, args.verbosity)
+            if len(iplist) == 0:
+                raise UsageError("No cells specified.")
+
             goodIPs, badIPs = testIPs(args.ipaddress, args.ipfile, args.verbosity)
+            print("iplist: ",iplist,", goodIPs: ",goodIPs,", badIPs: ",badIPs)
 
             if args.verbosity and len(goodIPs) > 0:
                 print("Success connecting to cells: %s" % goodIPs)
 
             if len(badIPs) == len(args.ipaddress):
-                print("All ip failed to connect.")
+                print("All ip failed to connect.Please enter the correct ip address and try again")
                 os._exit(1)
 
             if len(badIPs) > 0:
                 print("Unable to connect to cells: %s" % badIPs)
 
-        iplist = buildIPList(args.ipaddress, args.ipfile, args.verbosity)
+        #
+        # if len(goodIPs) > 0:
+        #     sampleCount = 1
+        #     loopCount = 0
+        #     while True:
 
-        batch = False
-        if args.maxThds < ():
-            if args.serializeOps:
-                raise UsageError("Cannot specify both serial mode and batch mode")
-            if args.maxThds < 1:
-                raise UsageError("Cannot specify batchsize less than 1")
-            batch = True
 
-        if len(iplist) == 0:
-            raise UsageError("No cells specified.")
-
-        if len(goodIPs) > 0:
-            batchBegin = 0
-            sampleCount = 1
-            loopCount = 0
-            while True:
-                if args.maxThds >= len(goodIPs) - batchBegin:
-                    batchEnd = len(goodIPs)
-                else:
-                    batchEnd = batchBegin + args.maxThds
-                cells = goodIPs[batchBegin:batchEnd]
-                while True:
-                    statusMap, outputMap = copyAndExecute(cells, None, None, None, command + str(sampleCount), args);
-                    if max(statusMap.values()) > 0:
-                        # error returned  ... display results in usual fashion and exit
-                        listResults(clist, statusMap, outputMap, None, None)
-                        break
-                    listVmstatResults(clist, statusMap, outputMap, options.vmstatOps, loopCount)
-                    if batch: break
-                    if vmstatCount >= 0:
-                        loopCount += 1
-                        if loopCount >= vmstatCount:
-                            break
-                    sampleCount = 2
     except UsageError as err:
         print(sys.stderr, "Error: %s" % err.msg)
         parser.print_help()

@@ -113,15 +113,11 @@ import re
 import sys
 import socket
 import platform
-import threading
 import signal
 import glob
 import tempfile
 from optparse import OptionParser
-if sys.version_info < (2,4):
-    import popen2
-else:
-    from subprocess import Popen, PIPE
+
 
 # dcli version displayed with --version
 version = "1.5"
@@ -494,7 +490,8 @@ def copyAndExecute( cells, copyfiles, execfile, destfile, command, options ) :
             tmpFd = os.fdopen(tmpBannerFd, "r+")
             sshCommand += " 2>"+tmpBannerFile
 
-            if verbose : print "execute: %s " % sshCommand
+            if verbose :
+                print "execute: %s " % sshCommand
             status = 0
             if sys.version_info >= (2,4):
                 if os.name == "posix":
