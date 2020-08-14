@@ -116,7 +116,9 @@ import platform
 import signal
 import glob
 import tempfile
+import threading
 from optparse import OptionParser
+
 
 
 # dcli version displayed with --version
@@ -681,7 +683,7 @@ def copyAndExecute( cells, copyfiles, execfile, destfile, command, options ) :
         raise Error ( "SCP program does not exist: %s " % SCP )
     
     file = copyfiles or execfile
-    if file:
+     if file:
 
         if copyfiles:
            for file in copyfiles:
