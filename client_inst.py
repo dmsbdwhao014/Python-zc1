@@ -21,17 +21,14 @@ PORT = 22
 TIMEOUT = 1.0
 TESTMODE = ''
 
-
 # Error class used to handle environment errors (e.g. file not found)
 class Error(Exception):
     def __init__(self, msg):
         self.msg = msg
 
-
 class UsageError(Exception):
     def __init__(self, msg):
         self.msg = msg
-
 
 def buildIPList(iplist, filename, verbose):
     """
@@ -65,7 +62,6 @@ def buildIPList(iplist, filename, verbose):
         if c not in uniqueIPList:
             uniqueIPList.append(c)
     return uniqueIPList
-
 
 def findFiles(path):
     '''Return list of files matching pattern in path.'''
@@ -101,12 +97,14 @@ def checkFile(filepath, isExec, verbose):
             if isExec and os.name == "posix" and not (mode & stat.S_IEXEC):  # same as stat.S_IXUSR
                 raise Error("Exec file does not have owner execute permissions")
 
-def CopyAndExecute(host, copyfile, destdir, args):
+def CopyAndExecute(host,args):
     root = args.root
+    copyfile = args.clientfile
+    destdir = args.destdir
     rootpassword = args.rootpassword
     if copyfile and os.path.exists(copyfile):
         destfile = os.path.join(destdir, os.path.basename(copyfile.strip()))
-    user = args.userid
+    user = args.user
     password = args.password
     verbose = args.verbosity
     init = args.init
@@ -127,6 +125,7 @@ def CopyAndExecute(host, copyfile, destdir, args):
                     self.userSsh = paramiko.SSHClient()
                     self.userSsh.set_missing_host_key_policy(paramiko.AutoAddPolicy)
                     self.userSsh._transport = self.T
+                    print(self.self.userSsh._transport)
                 if root and rootpassword:
                     self.T1 = paramiko.Transport((self.IP, 22))
                     self.T1.connect(username=root, password=rootpassword)
@@ -170,27 +169,30 @@ def CopyAndExecute(host, copyfile, destdir, args):
             updateLock.release()
 
         def execute_shell(self, cmd,mode):
-            try:
-                if verbose:
-                    print("[{}]:...entering thread for {}:".format(datetime.datetime.now(), self.IP))
-                    print("command:", cmd)
-                if testmode:
-                    print("test mode")
-                    print("command:", cmd)
-                else:
-                    if mode == 'root':
-                        stdin, stdout, stderr = self.rootSsh.exec_command(cmd)
+            if sys.version_info >= (3, 4):
+                try:
+                    if verbose:
+                        print("[{}]:...entering thread for {}:".format(datetime.datetime.now(), self.IP))
+                        print("command:", cmd)
+                    if testmode:
+                        print("test mode")
+                        print("command:", cmd)
                     else:
-                        stdin, stdout, stderr = self.userSsh.exec_command(cmd)
-                    print(stdout.read().decode('utf-8'))
-                    Err_List = stderr.readlines()
-                    if len(Err_List) > 0:
-                        print('[%s]:错误: %s' % ((datetime.datetime.now(), Err_List[0])))
-                        os._exit(1)
-                if verbose:
-                    print('[%s]:运行完毕' % datetime.datetime.now())
-            except Exception as e:
-                print("[%s]:错误:%s运行失败,失败原因%s" % (datetime.datetime.now(), cmd, e))
+                        if mode == 'root':
+                            stdin, stdout, stderr = self.rootSsh.exec_command(cmd)
+                        else:
+                            stdin, stdout, stderr = self.userSsh.exec_command(cmd)
+                        print(stdout.read().decode('utf-8'))
+                        Err_List = stderr.readlines()
+                        if len(Err_List) > 0:
+                            print('[%s]:错误: %s' % ((datetime.datetime.now(), Err_List[0])))
+                            os._exit(1)
+                    if verbose:
+                        print('[%s]:运行完毕' % datetime.datetime.now())
+                except Exception as e:
+                    print("[%s]:错误:%s运行失败,失败原因%s" % (datetime.datetime.now(), cmd, e))
+            else:
+                print('请升级Python版本到3.4以上')
 
         def CopyFile(self,copyfile,destfile):
             try:
@@ -212,21 +214,22 @@ def CopyAndExecute(host, copyfile, destdir, args):
         if file:
             for ipaddr in host:
                 ThreadWork = sshCmd(ipaddr)
+                print('ThreadWork:',ThreadWork)
                 ThreadWork.start()
                 waitList.append(ThreadWork)
 
             for thread in waitList:
-                while thread.isAlive():
+                while thread.is_alive():
                     thread.join(1)
 
     except KeyboardInterrupt as e:
         print("Keyboard interrupt")
         for thread in waitList:
-            if thread.isAlive() and thread.child:
+            if thread.is_alive() and thread.child:
                 try:
                     print("killing child pid %d..." % thread.child.pid)
                     os.kill(thread.child.pid, signal.SIGTERM)
-                    t = 2.0  # max wait time in secs
+                    t = 2.0
                     while thread.child.poll() < 0:
                         if t > 0.4:
                             t -= 0.20
@@ -293,8 +296,8 @@ def main(argv=None):
     parser.add_argument('-I', "--install", action="store_true", help="执行安装", dest="install")
     parser.add_argument('-f', '--file', action="store", default='/home/oracle/oracle.tar.gz', help='客户端文件位置',
                         metavar="file", dest='clientfile')
-    parser.add_argument('-df', '--destfile', action="store", default='/app/bighead', help='远程客户端文件位置',
-                        metavar="file", dest='destfile')
+    parser.add_argument('-d', '--destdir', action="store", default='/app/bighead', help='远程客户端文件位置',
+                        metavar="dir", dest='destdir')
     parser.add_argument('--init', action="store_true", help="是否初始化安装", dest="init")
     parser.add_argument("--root", help="初始化必须使用root用户", action="store",dest="root")
     parser.add_argument("--rootpassword", help="root用户的密码", action="store",dest="rootpassword")
@@ -303,20 +306,21 @@ def main(argv=None):
 
     parser.parse_intermixed_args()
     args = parser.parse_args()
-    print("args: ", args)
 
     if args.verbosity:
-        print("argv: %s" % argv)
+        print("args: %s" % args)
     returnValue = 0
 
     try:
         if args.init and not (args.root and args.rootpassword):
             raise UsageError('Initial installation requires root account.')
 
-        if not args.install and not (args.ipaddress or args.ipfile) and not args.password and not args.user :
+        if not args.install and not (args.ipaddress or args.ipfile) or not (args.password or args.user) :
             raise UsageError("No command specified.")
 
-        if args.install and not ((args.password and args.user) or (args.root and args.rootpassword)):
+        if
+
+        if args.install and not ((args.root and args.user) or (args.password and args.rootpassword)):
             raise UsageError("Must specify both user or superuser.")
 
         if args.ipaddress and args.ipfile:
@@ -356,18 +360,15 @@ def main(argv=None):
                     if args.verbosity:
                         print("程序开始运行%s" % datetime.datetime.now())
                     # 每一台服务器创建一个线程处理
-                    for server in cells:
-                        th = threading.Thread(target=sshCmd, args=(server,args.userid,args.password))
-                        th.start()
-                        threads.append(th)
+                    th = threading.Thread(target=CopyAndExecute, args=(cells,args))
+                    th.start()
+                    threads.append(th)
                     # 等待线程运行完毕
                     for th in threads:
                         th.join()
                     if args.verbosity:
                         print("程序结束运行%s" % datetime.datetime.now())
-
-
-
+                    break
     except UsageError as err:
         print(sys.stderr, "Error: %s" % err.msg)
         parser.print_help()

@@ -22,6 +22,7 @@ class UsageError(Exception):
     def __init__(self, msg):
         self.msg = msg
 
+
 def CopyAndExecute(host, copyfile, destdir, args):
     root = args.root
     rootpassword = args.rootpassword
@@ -33,6 +34,7 @@ def CopyAndExecute(host, copyfile, destdir, args):
     init = args.init
     clientfile = args.clientfile
     install = args.install
+    testmode=args.TESTMODE
     updateLock = threading.Lock()
 
     class sshCmd(threading.Thread):
@@ -94,15 +96,14 @@ def CopyAndExecute(host, copyfile, destdir, args):
                 if verbose:
                     print("[{}]:...entering thread for {}:".format(datetime.datetime.now(), self.IP))
                     print("command:", cmd)
-                if mode == 'root':
-                    stdin, stdout, stderr = self.rootSsh.exec_command(cmd)
-                    print(stdout.read().decode('utf-8'))
-                    Err_List = stderr.readlines()
-                    if len(Err_List) > 0:
-                        print('[%s]:错误: %s' % ((datetime.datetime.now(), Err_List[0])))
-                        os._exit(1)
+                if testmode:
+                    print("test mode")
+                    print("command:", cmd)
                 else:
-                    stdin, stdout, stderr = self.userSsh.exec_command(cmd)
+                    if mode == 'root':
+                        stdin, stdout, stderr = self.rootSsh.exec_command(cmd)
+                    else:
+                        stdin, stdout, stderr = self.userSsh.exec_command(cmd)
                     print(stdout.read().decode('utf-8'))
                     Err_List = stderr.readlines()
                     if len(Err_List) > 0:
@@ -117,7 +118,10 @@ def CopyAndExecute(host, copyfile, destdir, args):
             try:
                 if verbose:
                     print("local_path:", copyfile, " remote_path:", destfile)
-                self.Sftp.put(copyfile, destfile)
+                if testmode:
+                    print("copy test")
+                else:
+                    self.Sftp.put(copyfile, destfile)
                 self.T.close()
             except Exception as e:
                 raise UsageError('[{}]:错误: {}'.format(datetime.datetime.now(), e))
@@ -142,8 +146,7 @@ def CopyAndExecute(host, copyfile, destdir, args):
         for thread in waitList:
             if thread.isAlive() and thread.child:
                 try:
-                    print
-                    "killing child pid %d..." % thread.child.pid
+                    print("killing child pid %d..." % thread.child.pid)
                     os.kill(thread.child.pid, signal.SIGTERM)
                     t = 2.0  # max wait time in secs
                     while thread.child.poll() < 0:
@@ -161,6 +164,28 @@ def CopyAndExecute(host, copyfile, destdir, args):
         raise KeyboardInterrupt
     return status, output
 
-ssh = sshCmd('192.168.148.10', 'root', 'oracle', 5, Scopy=True)
+def main(argv=None):
+    parser = argparse.ArgumentParser(description='安装Oracle客户端脚本')
+    parser.add_argument('-V', '--version', help="版本信息", action='version', version=version)
+    parser.add_argument("-i", '--ip', help="需要安装客户端的IP地址", nargs='*', metavar="ip", dest="ipaddress")
+    parser.add_argument("-g", "--group", help="包含IP列表的文件", action="store", metavar="file", type=str, dest="ipfile")
+    parser.add_argument("-u", "--user", default="oracle", help="登陆到远程使用的用户", metavar="user", action="store",dest="user")
+    parser.add_argument('-p', '--password', action="store", help='登陆远程的用户密码', metavar="passwd", dest='password')
+    parser.add_argument("-v", "--verbose", action="count", dest="verbosity")
+    parser.add_argument('-I', "--install", action="store_true", help="执行安装", dest="install")
+    parser.add_argument('-f', '--file', action="store", default='/home/oracle/oracle.tar.gz', help='客户端文件位置',
+                        metavar="file", dest='clientfile')
+    parser.add_argument('-df', '--destfile', action="store", default='/app/bighead', help='远程客户端文件位置',
+                        metavar="file", dest='destfile')
+    parser.add_argument('--init', action="store_true", help="是否初始化安装", dest="init")
+    parser.add_argument("--root", help="初始化必须使用root用户", action="store",dest="root")
+    parser.add_argument("--rootpassword", help="root用户的密码", action="store",dest="rootpassword")
+    parser.add_argument("-T", help="测试模式", action="store_true",dest="TESTMODE")
+
+
+    parser.parse_intermixed_args()
+    args = parser.parse_args()
+    print("args: ", args)
+ssh = CopyAndExecute('192.168.148.10', 'root', 'oracle', 5, Scopy=True)
 # ssh.put_file(r'C:\Users\cheng\Oracle\oradiag_cheng\diag\clients\user_cheng\host_4011349183_82\alert\log.xml','/app/bighead/oracle/log.xml')
 # ssh.execute_shell('ls')
