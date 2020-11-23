@@ -15,9 +15,13 @@ def selFile():
     fileEntryV.set(path_)
 
 
+
 ############### 页面 ########################
+# 实例化窗口
 root = tk.Tk()
+# 窗口标题
 root.title("window test")
+# 窗口分辨率
 root.geometry("500x300+100+200")
 # 设置窗口不可以调整
 root.resizable(0, 0)
@@ -28,7 +32,9 @@ win.pack(side=tk.TOP, expand = tk.YES, fill=tk.NONE, anchor='nw')
 menubar = tk.Menu(root)
 filemenu = tk.Menu(menubar, tearoff=0)
 menubar.add_cascade(label='File', menu=filemenu)
-
+filemenu.add_command(label='new',command=None)
+filemenu.add_command(label='open')
+filemenu.add_command(label='exit')
 
 fileEntryV = tk.StringVar()
 banquanV =  tk.StringVar()
@@ -77,10 +83,6 @@ filler_label.grid()
 btn = tk.Button(win, text="生成考场", command=None)
 btn.grid(row=5, column=1)
 
-# 版权
-frame = tk.Frame(root)
-frame.pack(side=tk.BOTTOM, expand = tk.YES, fill=tk.NONE, anchor='sw')
-xx_label = tk.Label(frame, height=15)
-xx_label.pack()
+root.config(menu=menubar)
 
 win.mainloop()

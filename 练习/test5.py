@@ -1,191 +1,66 @@
-import datetime
-import threading
-import os
-import sys
-import tempfile
-import argparse
-import paramiko
-import stat
-import socket
-import signal
-import glob
-import time
-from paramiko.ssh_exception import NoValidConnectionsError, AuthenticationException
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# author:洪卫
+
+import tkinter as tk  # 使用Tkinter前需要先导入
+
+# 第1步，实例化object，建立窗口window
+window = tk.Tk()
+
+# 第2步，给窗口的可视化起名字
+window.title('My Window')
+
+# 第3步，设定窗口的大小(长 * 宽)
+window.geometry('500x300')  # 这里的乘是小x
+
+# 第4步，在图形界面上创建一个标签用以显示内容并放置
+l = tk.Label(window, text='      ', bg='green')
+l.pack()
+
+# 第10步，定义一个函数功能，用来代表菜单选项的功能，这里为了操作简单，定义的功能比较简单
+counter = 0
 
 
-class Error(Exception):
-    def __init__(self, msg):
-        self.msg = msg
+def do_job():
+    global counter
+    l.config(text='do ' + str(counter))
+    counter += 1
 
 
-class UsageError(Exception):
-    def __init__(self, msg):
-        self.msg = msg
+# 第5步，创建一个菜单栏，这里我们可以把他理解成一个容器，在窗口的上方
+menubar = tk.Menu(window)
 
+# 第6步，创建一个File菜单项（默认不下拉，下拉内容包括New，Open，Save，Exit功能项）
+filemenu = tk.Menu(menubar, tearoff=0)
+# 将上面定义的空菜单命名为File，放在菜单栏中，就是装入那个容器中
+menubar.add_cascade(label='File', menu=filemenu)
 
-def CopyAndExecute(host, copyfile, destdir, args):
-    root = args.root
-    rootpassword = args.rootpassword
-    if copyfile and os.path.exists(copyfile):
-        destfile = os.path.join(destdir, os.path.basename(copyfile.strip()))
-    user = args.userid
-    password = args.password
-    verbose = args.verbosity
-    init = args.init
-    clientfile = args.clientfile
-    install = args.install
-    testmode=args.TESTMODE
-    updateLock = threading.Lock()
+# 在File中加入New、Open、Save等小菜单，即我们平时看到的下拉菜单，每一个小菜单对应命令操作。
+filemenu.add_command(label='New', command=do_job)
+filemenu.add_command(label='Open', command=do_job)
+filemenu.add_command(label='Save', command=do_job)
+filemenu.add_separator()  # 添加一条分隔线
+filemenu.add_command(label='Exit', command=window.quit)  # 用tkinter里面自带的quit()函数
 
-    class sshCmd(threading.Thread):
-        def __init__(self,ip):
-            threading.Thread.__init__(self)
-            self.IP = ip
-            self.child = None
-            try:
-                if user and password:
-                    self.T = paramiko.Transport((self.IP, 22))
-                    self.T.connect(username=user, password=password)
-                    self.userSsh = paramiko.SSHClient()
-                    self.userSsh.set_missing_host_key_policy(paramiko.AutoAddPolicy)
-                    self.userSsh._transport = self.T
-                if root and rootpassword:
-                    self.T1 = paramiko.Transport((self.IP, 22))
-                    self.T1.connect(username=root, password=rootpassword)
-                    self.rootSsh = paramiko.SSHClient()
-                    self.rootSsh.set_missing_host_key_policy(paramiko.AutoAddPolicy)
-                    self.rootSsh._transport = self.T1
-                if init and (copyfile and destfile):
-                    self.Sftp = paramiko.SFTPClient.from_transport(self.T)
-            except AuthenticationException as e:
-                print("[{}]:错误:认证失败,请检查{}的账号密码".format(datetime.datetime.now(), self.IP))
-                os._exit(1)
-            except NoValidConnectionsError:
-                print('[{}]:错误:连接{}出现了问题'.format(datetime.datetime.now(), self.IP))
-                os._exit(1)
-            except Exception as e:
-                print('[{}]:错误:其他错误问题{}'.format(datetime.datetime.now(), e))
-                os._exit(1)
+# 第7步，创建一个Edit菜单项（默认不下拉，下拉内容包括Cut，Copy，Paste功能项）
+editmenu = tk.Menu(menubar, tearoff=0)
+# 将上面定义的空菜单命名为 Edit，放在菜单栏中，就是装入那个容器中
+menubar.add_cascade(label='Edit', menu=editmenu)
 
-        def ThreadExecute(self):
-            AddGroup = r'if [ `cat /etc/group|grep oinstall|wc -l` -eq 0 ]; then groupadd oinstall;fi'
-            AddUser = r'if [ `cat /etc/passwd|grep oracle|wc -l` -eq 0  ];then useradd -g oinstall oracle;echo "Nsnoracle@jm20170408" | passwd --stdin oracle;fi'
-            Modify_Global_Profile = r'if [ `cat /etc/profile|grep ORACLE_HOME|wc -l` -eq 0  ];then echo -e "export ORACLE_HOME={destfile1}/oracle/product/12.2.0/client_1/ \nexport PATH=$ORACLE_HOME/bin:$PATH\nexport LD_LIBRARY_PATH=$ORACLE_HOME/lib:$LD_LIBRARY_PATH" >> /etc/profile '.format(
-                destfile1=destfile)
-            Modify_User_Profile = r'if [ `cat ~/.bash_profile|grep ORACLE_HOME|wc -l` -eq 0  ];then echo -e "export ORACLE_HOME={destfile1}/oracle/product/12.2.0/client_1/ \nexport PATH=$ORACLE_HOME/bin:$PATH\nexport LD_LIBRARY_PATH=$ORACLE_HOME/lib:$LD_LIBRARY_PATH" >> ~/.bash_profile '.format(
-                destfile1=destfile)
-            Check_Hosts = r'if [ `cat /etc/hosts |grep $HOSTNAME|wc -l` -eq 0 ];then echo {ip}  `hostname` >> /etc/hosts ;fi'.format(
-                ip = self.IP)
-            Uncompress_Tar = r'if [ `ls {file}|wc -l` -eq 1 ];then tar -xf {file} -C {dest1};done'.format(file=destfile,dest1=destdir)
+# 同样的在 Edit 中加入Cut、Copy、Paste等小命令功能单元，如果点击这些单元, 就会触发do_job的功能
+editmenu.add_command(label='Cut', command=do_job)
+editmenu.add_command(label='Copy', command=do_job)
+editmenu.add_command(label='Paste', command=do_job)
 
-            if install:
-                if init and root == 'root' and rootpassword:
-                    self.execute_shell(AddGroup + ";" + AddUser + ";" + Modify_Global_Profile + ";" + Check_Hosts,root)
-                else:
-                    if root == 'root' and rootpassword:
-                        self.execute_shell(Modify_Global_Profile + ";" + Check_Hosts,root)
-                self.execute_shell(Modify_User_Profile,user)
-                if clientfile:
-                    self.CopyFile(copyfile,destfile)
-                self.execute_shell(Uncompress_Tar, user)
-            updateLock.acquire()
-            updateLock.release()
+# 第8步，创建第二级菜单，即菜单项里面的菜单
+submenu = tk.Menu(filemenu)  # 和上面定义菜单一样，不过此处实在File上创建一个空的菜单
+filemenu.add_cascade(label='Import', menu=submenu, underline=0)  # 给放入的菜单submenu命名为Import
 
-        def execute_shell(self, cmd,mode):
-            try:
-                if verbose:
-                    print("[{}]:...entering thread for {}:".format(datetime.datetime.now(), self.IP))
-                    print("command:", cmd)
-                if testmode:
-                    print("test mode")
-                    print("command:", cmd)
-                else:
-                    if mode == 'root':
-                        stdin, stdout, stderr = self.rootSsh.exec_command(cmd)
-                    else:
-                        stdin, stdout, stderr = self.userSsh.exec_command(cmd)
-                    print(stdout.read().decode('utf-8'))
-                    Err_List = stderr.readlines()
-                    if len(Err_List) > 0:
-                        print('[%s]:错误: %s' % ((datetime.datetime.now(), Err_List[0])))
-                        os._exit(1)
-                if verbose:
-                    print('[%s]:运行完毕' % datetime.datetime.now())
-            except Exception as e:
-                print("[%s]:错误:%s运行失败,失败原因%s" % (datetime.datetime.now(), cmd, e))
+# 第9步，创建第三级菜单命令，即菜单项里面的菜单项里面的菜单命令（有点拗口，笑~~~）
+submenu.add_command(label='Submenu_1', command=do_job)  # 这里和上面创建原理也一样，在Import菜单项中加入一个小菜单命令Submenu_1
 
-        def CopyFile(self,copyfile,destfile):
-            try:
-                if verbose:
-                    print("local_path:", copyfile, " remote_path:", destfile)
-                if testmode:
-                    print("copy test")
-                else:
-                    self.Sftp.put(copyfile, destfile)
-                self.T.close()
-            except Exception as e:
-                raise UsageError('[{}]:错误: {}'.format(datetime.datetime.now(), e))
+# 第11步，创建菜单栏完成后，配置让菜单栏menubar显示出来
+window.config(menu=menubar)
 
-    output = {}
-    status = {}
-    waitList = []
-    file = init or copyfile
-    try:
-        if file:
-            for ipaddr in host:
-                ThreadWork = sshCmd(ipaddr)
-                ThreadWork.start()
-                waitList.append(ThreadWork)
-
-            for thread in waitList:
-                while thread.isAlive():
-                    thread.join(1)
-
-    except KeyboardInterrupt as e:
-        print("Keyboard interrupt")
-        for thread in waitList:
-            if thread.isAlive() and thread.child:
-                try:
-                    print("killing child pid %d..." % thread.child.pid)
-                    os.kill(thread.child.pid, signal.SIGTERM)
-                    t = 2.0  # max wait time in secs
-                    while thread.child.poll() < 0:
-                        if t > 0.4:
-                            t -= 0.20
-                            time.sleep(0.20)
-                        else:  # still there, force kill
-                            os.kill(thread.child.pid, signal.SIGKILL)
-                            time.sleep(0.4)
-                            thread.child.poll()  # final try
-                            break
-                except OSError as e:
-                    if e.errno != 3:
-                        raise
-        raise KeyboardInterrupt
-    return status, output
-
-def main(argv=None):
-    parser = argparse.ArgumentParser(description='安装Oracle客户端脚本')
-    parser.add_argument('-V', '--version', help="版本信息", action='version', version=version)
-    parser.add_argument("-i", '--ip', help="需要安装客户端的IP地址", nargs='*', metavar="ip", dest="ipaddress")
-    parser.add_argument("-g", "--group", help="包含IP列表的文件", action="store", metavar="file", type=str, dest="ipfile")
-    parser.add_argument("-u", "--user", default="oracle", help="登陆到远程使用的用户", metavar="user", action="store",dest="user")
-    parser.add_argument('-p', '--password', action="store", help='登陆远程的用户密码', metavar="passwd", dest='password')
-    parser.add_argument("-v", "--verbose", action="count", dest="verbosity")
-    parser.add_argument('-I', "--install", action="store_true", help="执行安装", dest="install")
-    parser.add_argument('-f', '--file', action="store", default='/home/oracle/oracle.tar.gz', help='客户端文件位置',
-                        metavar="file", dest='clientfile')
-    parser.add_argument('-df', '--destfile', action="store", default='/app/bighead', help='远程客户端文件位置',
-                        metavar="file", dest='destfile')
-    parser.add_argument('--init', action="store_true", help="是否初始化安装", dest="init")
-    parser.add_argument("--root", help="初始化必须使用root用户", action="store",dest="root")
-    parser.add_argument("--rootpassword", help="root用户的密码", action="store",dest="rootpassword")
-    parser.add_argument("-T", help="测试模式", action="store_true",dest="TESTMODE")
-
-
-    parser.parse_intermixed_args()
-    args = parser.parse_args()
-    print("args: ", args)
-ssh = CopyAndExecute('192.168.148.10', 'root', 'oracle', 5, Scopy=True)
-# ssh.put_file(r'C:\Users\cheng\Oracle\oradiag_cheng\diag\clients\user_cheng\host_4011349183_82\alert\log.xml','/app/bighead/oracle/log.xml')
-# ssh.execute_shell('ls')
+# 第12步，主窗口循环显示
+window.mainloop()
